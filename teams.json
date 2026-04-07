@@ -1,0 +1,89 @@
+{
+    "sports": [
+        {
+            "name": "Basketball",
+            "teams": [
+                "Los Angeles Lakers",
+                "Chicago Bulls",
+                "Miami Heat"
+            ],
+            "options": [
+                "techinical fouls",
+                "three pointer",
+                "free throws",
+                "shot clock violation",
+                "traveling",
+                "double dribble",
+                "dunk",
+                "loss"
+            ]
+        },
+        {
+            "name": "Football",
+            "teams": [
+                "New England Patriots",
+                "Dallas Cowboys",
+                "Green Bay Packers"
+            ],
+            "options": [
+                "touchdown",
+                "field goal",
+                "safety",
+                "extra point",
+                "two-point conversion",
+                "interception",
+                "fumble",
+                "loss"
+            ]
+        },
+        {
+            "name": "Baseball",
+            "teams": [
+                "New York Yankees",
+                "Los Angeles Dodgers",
+                "Chicago Cubs"
+            ],
+            "options": [
+                "home run",
+                "strikeout",
+                "walk",
+                "double play",
+                "stolen base",
+                "error",
+                "loss"
+            ]
+        },
+        {
+            "name": "hockey",
+            "teams": [
+                "Toronto Maple Leafs",
+                "Montreal Canadiens",
+                "Chicago Blackhawks"
+            ],
+            "options": [
+                "goal",
+                "assist",
+                "penalty",
+                "power play",
+                "shorthanded goal",
+                "hat trick",
+                "loss"
+            ]
+        }
+    ],
+
+    "workouts": [
+        "walk/run 1 mile",
+        "push-ups",
+        "sit-ups",
+        "squats",
+        "lunges",
+        "plank",
+        "jumping jacks",
+        "burpees",
+        "mountain climbers",
+        "high knees",
+        "wall sits"
+    ]
+
+}

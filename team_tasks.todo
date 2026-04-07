@@ -2,48 +2,48 @@ Ty Tasks:
     ☐ finish readME document est(2h)
 
 Final Project To‑Do List
-
-1. Data + Setup
+ 
+1. Data + Setup:
 - Create libraries for NHL, NFL, MLB, NBA to store team data 
 - Create exercise rules libraries for each sport (push‑ups, sit‑ups, etc.)
 - Set up LocalStorage structure (favorite team, goals, progress)
 
-2. Backend Logic
-- Create classes for:
-- Team
-- Workout Rule
-- Workout Session / Progress Tracker
-- Add functions to:
-- Save/load favorite team
-- Save/load workout goals
+2. Backend Logic:
+    Create classes for:
+    ☐ Team
+    ☐ Workout Rule
+    ☐ Workout Session / Progress Tracker
+    ☐ Add functions to:
+    ☐ Save/load favorite team
+    ☐ Save/load workout goals
 - Save/load progress
 - Update totals
 
-3. API Integration
-- Connect to each league’s API (or api-sports.io)
-- Fetch game results for the user’s team
-- Parse events (goals, touchdowns, penalties, etc.)
-- Convert events → exercises using your rules
-- Update the user’s “exercises due” automatically
+3. API Integration:
+    ☐ Connect to each league’s API (or api-sports.io)
+    ☐ Fetch game results for the user’s team
+    ☐ Parse events (goals, touchdowns, penalties, etc.)
+    ☐ Convert events → exercises using your rules
+    ☐ Update the user’s “exercises due” automatically
 
-4. Link Frontend + Backend
-- Display fetched game stats in the UI
-- Display calculated exercises
-- Add buttons for “mark exercise complete”
-- Update LocalStorage when user logs progress
-- Show season summary
+4. Link Frontend + Backend:
+    ☐ Display fetched game stats in the UI
+    ☐ Display calculated exercises
+    ☐ Add buttons for “mark exercise complete”
+    ☐ Update LocalStorage when user logs progress
+    ☐ Show season summary
 
-5. Testing + Debugging
-- Test API calls for all sports
-- Test LocalStorage saving/loading
-- Test UI interactions (buttons, forms, navigation)
-- Fix layout issues
-- Fix logic errors in exercise calculations
-- Ensure cross‑browser functionality
+5. Testing + Debugging:
+    ☐ Test API calls for all sports
+    ☐ Test LocalStorage saving/loading
+    ☐ Test UI interactions (buttons, forms, navigation)
+    ☐ Fix layout issues
+    ☐ Fix logic errors in exercise calculations
+    ☐ Ensure cross‑browser functionality
 
-6. Final Polish + Deployment
-- Improve CSS styling
-- Add simple animations or transitions
-- Clean up code comments and file organization
-- Deploy to Netlify
-- Test deployed version for broken links or API issues
+6. Final Polish + Deployment:
+    ☐ Improve CSS styling
+    ☐ Add simple animations or transitions
+    ☐ Clean up code comments and file organization
+    ☐ Deploy to Netlify
+    ☐ Test deployed version for broken links or API issues
