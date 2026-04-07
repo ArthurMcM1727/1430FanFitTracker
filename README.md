@@ -4,7 +4,10 @@ FanFit Tracker is a fitness program that turns what happens in a sports game int
 
 ## Key Features
 
-- Add a favorite team for your sport
+- Add a favorite team for your sport from the following 3 sports: 
+    - Football
+    - Hockey
+    - Baseball
 - Generate a short workout list based on events from a game
 - Track total exercises due and total exercises completed
 - Store the user's favorite team, customized workout goals, due work, and completed work with JavaScript
@@ -34,6 +37,8 @@ FanFit Tracker is a fitness program that turns what happens in a sports game int
 ## Current Status
 
 This project is in an early build stage. The UI sketch shows the planned layout, and the data file is ready for team information. The README describes the intended feature set for the final project.
+
+We are currently implementing a JSON 
 
 ## Future Improvements
 
