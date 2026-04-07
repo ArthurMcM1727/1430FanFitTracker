@@ -1,0 +1,47 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+    display: flex;
+    align-items: center;
+}
+
+#sport-selector {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.sport-button {
+    padding: 10px 20px;
+    background-color: #f0f0f0;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    font-size: 16px;
+    margin: 20px;
+    gap: 20px;
+}
+
+.sport-button:hover {
+    background-color: #e0e0e0;
+}
+
+.teams-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.team-card {
+    padding: 10px;
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    width: 200px;
+}
+
+.team-card h2 {
+    margin: 0;
+    font-size: 16px;
+}
