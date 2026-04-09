@@ -42,7 +42,8 @@ We are currently implementing a JSON
 
 ## Future Improvements
 
-- Connect the team selector to real team data
+- Connect the team selector to real team data using the ESPN API
+    - https://github.com/pseudo-r/Public-ESPN-API
 - Automatically create workouts from game events
 - Save completed workouts between sessions
 - Add a clearer season summary page for user review
