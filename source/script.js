@@ -1,9 +1,16 @@
 let sportsData;
 
 async function loadData() {
-    const response = await fetch('teams.json');
-    const data = await response.json();
-    sportsData = data.sports;
+    try {
+        const response = await fetch('sports.json');
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        const data = await response.json();
+        sportsData = data.sports;
+    } catch (error) {
+        console.error('Error loading sports data:', error);
+    }
 }
 
 function showSports() {
@@ -38,8 +45,8 @@ function showTeamsForSport(sport) {
     teamList.appendChild(teamsContainer);
 }
 
-async function init() {
-    await loadData();
+function init() {
+    loadData();
     showSports();
 }
 
