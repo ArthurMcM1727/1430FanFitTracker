@@ -1,3 +1,184 @@
-fanfit_data:{
-    
+{
+    "sports": {
+        "football": {
+            "label": "Football",
+            "accent": "#cc4b37",
+            "teams": [
+                {
+                    "id": "buffalo-bills",
+                    "name": "Buffalo Bills"
+                },
+                {
+                    "id": "detroit-lions",
+                    "name": "Detroit Lions"
+                },
+                {
+                    "id": "kansas-city-chiefs",
+                    "name": "Kansas City Chiefs"
+                },
+                {
+                    "id": "san-francisco-49ers",
+                    "name": "San Francisco 49ers"
+                }
+            ],
+            "rules": [
+                {
+                    "event": "Touchdown",
+                    "exercise": "Push-ups",
+                    "amount": 20,
+                    "unit": "reps"
+                },
+                {
+                    "event": "Penalty",
+                    "exercise": "Squats",
+                    "amount": 12,
+                    "unit": "reps"
+                },
+                {
+                    "event": "First Down",
+                    "exercise": "Mountain Climbers",
+                    "amount": 16,
+                    "unit": "reps"
+                },
+                {
+                    "event": "Turnover",
+                    "exercise": "Burpees",
+                    "amount": 10,
+                    "unit": "reps"
+                },
+                {
+                    "event": "Field Goal",
+                    "exercise": "Plank Hold",
+                    "amount": 30,
+                    "unit": "seconds"
+                },
+                {
+                    "event": "Sack",
+                    "exercise": "Lunges",
+                    "amount": 14,
+                    "unit": "reps"
+                }
+            ]
+        },
+        "hockey": {
+            "label": "Hockey",
+            "accent": "#1f6ea7",
+            "teams": [
+                {
+                    "id": "boston-bruins",
+                    "name": "Boston Bruins"
+                },
+                {
+                    "id": "chicago-blackhawks",
+                    "name": "Chicago Blackhawks"
+                },
+                {
+                    "id": "pittsburgh-penguins",
+                    "name": "Pittsburgh Penguins"
+                },
+                {
+                    "id": "tampa-bay-lightning",
+                    "name": "Tampa Bay Lightning"
+                }
+            ],
+            "rules": [
+                {
+                    "event": "Goal",
+                    "exercise": "Jumping Jacks",
+                    "amount": 24,
+                    "unit": "reps"
+                },
+                {
+                    "event": "Penalty",
+                    "exercise": "Wall Sits",
+                    "amount": 35,
+                    "unit": "seconds"
+                },
+                {
+                    "event": "Power Play",
+                    "exercise": "Bicycle Crunches",
+                    "amount": 18,
+                    "unit": "reps"
+                },
+                {
+                    "event": "Save",
+                    "exercise": "Push-ups",
+                    "amount": 15,
+                    "unit": "reps"
+                },
+                {
+                    "event": "Shot Block",
+                    "exercise": "High Knees",
+                    "amount": 20,
+                    "unit": "reps"
+                },
+                {
+                    "event": "Overtime",
+                    "exercise": "Plank Hold",
+                    "amount": 45,
+                    "unit": "seconds"
+                }
+            ]
+        },
+        "baseball": {
+            "label": "Baseball",
+            "accent": "#2f8f5b",
+            "teams": [
+                {
+                    "id": "new-york-yankees",
+                    "name": "New York Yankees"
+                },
+                {
+                    "id": "los-angeles-dodgers",
+                    "name": "Los Angeles Dodgers"
+                },
+                {
+                    "id": "chicago-cubs",
+                    "name": "Chicago Cubs"
+                },
+                {
+                    "id": "boston-red-sox",
+                    "name": "Boston Red Sox"
+                }
+            ],
+            "rules": [
+                {
+                    "event": "Home Run",
+                    "exercise": "Sit-ups",
+                    "amount": 20,
+                    "unit": "reps"
+                },
+                {
+                    "event": "Strikeout",
+                    "exercise": "Burpees",
+                    "amount": 12,
+                    "unit": "reps"
+                },
+                {
+                    "event": "Walk",
+                    "exercise": "Squats",
+                    "amount": 14,
+                    "unit": "reps"
+                },
+                {
+                    "event": "Double Play",
+                    "exercise": "Mountain Climbers",
+                    "amount": 18,
+                    "unit": "reps"
+                },
+                {
+                    "event": "Stolen Base",
+                    "exercise": "Jumping Jacks",
+                    "amount": 24,
+                    "unit": "reps"
+                },
+                {
+                    "event": "Extra Innings",
+                    "exercise": "Plank Hold",
+                    "amount": 40,
+                    "unit": "seconds"
+                }
+            ]
+        }
+    }
 }

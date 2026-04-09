@@ -38,7 +38,7 @@ FanFit Tracker is a fitness program that turns what happens in a sports game int
 
 This project is in an early build stage. The UI sketch shows the planned layout, and the data file is ready for team information. The README describes the intended feature set for the final project.
 
-We are currently implementing a JSON 
+The current build includes a working single-page tracker with sport selection, team selection, workout generation, localStorage persistence, and season review summaries.
 
 ## Future Improvements
 

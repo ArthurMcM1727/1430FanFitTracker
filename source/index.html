@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FanFit Tracker</title>
+    <link rel="stylesheet" href="style.css">
+    <script defer src="script.js"></script>
+</head>
+
+<body>
+    <div class="backdrop backdrop-one" aria-hidden="true"></div>
+    <div class="backdrop backdrop-two" aria-hidden="true"></div>
+
+    <div class="page-shell">
+        <header class="hero panel">
+            <div class="hero-copy">
+                <p class="eyebrow">FanFit Tracker</p>
+                <h1>Turn game events into a workout you can finish.</h1>
+                <p class="hero-text">
+                    Pick a sport, choose your favorite team, generate a workout from game moments,
+                    and keep a season total that follows you across refreshes.
+                </p>
+            </div>
+
+            <div class="hero-actions">
+                <button id="generateWorkoutBtn" class="button button-primary" type="button">Generate Workout</button>
+                <button id="newSeasonBtn" class="button button-secondary" type="button">Start New Season</button>
+            </div>
+
+            <p id="statusMessage" class="status-message" aria-live="polite"></p>
+        </header>
+
+        <main class="layout">
+            <section class="panel">
+                <div class="panel-heading">
+                    <div>
+                        <p class="section-label">Setup</p>
+                        <h2>Choose your team</h2>
+                    </div>
+                    <p class="section-note">Your selections are saved locally in the browser.</p>
+                </div>
+
+                <div id="sportCards" class="sport-cards" aria-label="Sport selection"></div>
+
+                <div class="controls-grid">
+                    <label class="field">
+                        <span>Favorite team</span>
+                        <select id="teamSelect"></select>
+                    </label>
+
+                    <label class="field">
+                        <span>Workouts per game</span>
+                        <input id="goalInput" type="number" min="1" max="12" value="4">
+                    </label>
+
+                    <label class="field">
+                        <span>Season label</span>
+                        <input id="seasonNameInput" type="text" maxlength="40">
+                    </label>
+                </div>
+            </section>
+
+            <section class="stats-grid" aria-label="Season stats">
+                <article class="stat-card stat-card-accent">
+                    <span class="stat-label">Exercises due</span>
+                    <strong id="dueCount">0</strong>
+                </article>
+
+                <article class="stat-card">
+                    <span class="stat-label">Completed</span>
+                    <strong id="completedCount">0</strong>
+                </article>
+
+                <article class="stat-card">
+                    <span class="stat-label">Games tracked</span>
+                    <strong id="gamesCount">0</strong>
+                </article>
+
+                <article class="stat-card">
+                    <span class="stat-label">Exercises per game</span>
+                    <strong id="goalCount">0</strong>
+                </article>
+            </section>
+
+            <section class="panel workout-panel">
+                <div class="panel-heading">
+                    <div>
+                        <p class="section-label">Workout Queue</p>
+                        <h2>Active workout list</h2>
+                    </div>
+                    <p class="section-note" id="selectionSummary"></p>
+                </div>
+
+                <div id="latestBatch" class="batch-summary" aria-live="polite"></div>
+
+                <div class="list-shell">
+                    <div class="list-header">
+                        <h3>Due now</h3>
+                        <span id="dueBadge" class="pill"></span>
+                    </div>
+                    <ul id="workoutList" class="workout-list"></ul>
+                    <p id="emptyWorkoutState" class="empty-state">Generate a workout to create your first set of
+                        exercises.</p>
+                </div>
+
+                <div class="list-shell completed-shell">
+                    <div class="list-header">
+                        <h3>Completed</h3>
+                        <span id="completedBadge" class="pill"></span>
+                    </div>
+                    <ul id="completedList" class="completed-list"></ul>
+                </div>
+            </section>
+
+            <section class="panel review-panel">
+                <div class="panel-heading">
+                    <div>
+                        <p class="section-label">Season Review</p>
+                        <h2>Track progress over time</h2>
+                    </div>
+                    <p class="section-note">Archive your season totals before starting a new run.</p>
+                </div>
+
+                <p id="summaryText" class="summary-text"></p>
+
+                <div class="history-wrap">
+                    <div class="list-header">
+                        <h3>Archived seasons</h3>
+                        <span id="historyBadge" class="pill"></span>
+                    </div>
+                    <ul id="seasonHistory" class="history-list"></ul>
+                    <p id="emptyHistoryState" class="empty-state">No archived seasons yet.</p>
+                </div>
+            </section>
+        </main>
+    </div>
+</body>
+
+</html>
