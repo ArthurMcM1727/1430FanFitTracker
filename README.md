@@ -38,6 +38,8 @@ FanFit Tracker is a fitness program that turns what happens in a sports game int
 
 This project is in an early build stage. The UI sketch shows the planned layout, and the data file is ready for team information. The README describes the intended feature set for the final project.
 
+We will be using the ESPN API to pull real-time game scores, but the fouls and other events will be tracked manually by the user, because it is difficult to pull that data from the API.
+
 We are currently implementing a JSON 
 
 ## Future Improvements
