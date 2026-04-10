@@ -8,6 +8,7 @@ FanFit Tracker is a fitness program that turns what happens in a sports game int
     - Football
     - Hockey
     - Baseball
+    - Basketball
 - Generate a short workout list based on events from a game
 - Track total exercises due and total exercises completed
 - Store the user's favorite team, customized workout goals, due work, and completed work with JavaScript

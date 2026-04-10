@@ -13,6 +13,66 @@ async function loadData() {
     }
 }
 
+function extractTeamNames(data) { // Extract team names from the ESPN API response
+    return (data?.sports?.[0]?.leagues?.[0]?.teams ?? [])
+        .map(entry => entry?.team?.displayName)
+        .filter(Boolean);
+} // I'll be honest, copilot helped me with this one. I wasn't sure how to work through the layers of the JSON response.
+
+async function fetchFootballTeams() { // Get all NFL teams from the ESPN API
+    try {
+        const response = await fetch('https://site.api.espn.com/apis/site/v2/sports/football/nfl/teams');
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        const data = await response.json();
+        console.log('NFL Teams:', extractTeamNames(data));
+    } catch (error) {
+        console.error('Error fetching ESPN data:', error);
+    }
+}
+
+async function fetchNHLTeams() { // Get all NHL teams from the ESPN API
+    try {
+        const response = await fetch('https://site.api.espn.com/apis/site/v2/sports/hockey/nhl/teams');
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        const data = await response.json();
+        console.log('NHL Teams:', extractTeamNames(data));
+    } catch (error) {
+        console.error('Error fetching ESPN data:', error);
+    }
+}
+
+async function fetchMLBTeams() { // Get all MLB teams from the ESPN API
+    try {
+        const response = await fetch('https://site.api.espn.com/apis/site/v2/sports/baseball/mlb/teams');
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        const data = await response.json();
+        console.log('MLB Teams:', extractTeamNames(data));
+    } catch (error) {
+        console.error('Error fetching ESPN data:', error);
+    }
+}
+
+async function fetchNBATeams() { // Get all NBA teams from the ESPN API
+    try {
+        const response = await fetch('https://site.api.espn.com/apis/site/v2/sports/basketball/nba/teams');
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        const data = await response.json();
+        console.log('NBA Teams:', extractTeamNames(data));
+    } catch (error) {
+        console.error('Error fetching ESPN data:', error);
+    }
+}
+
+
+
 function showSports() {
     const sportSelector = document.getElementById('sport-selector');
     sportsData.forEach(sport => {
@@ -46,8 +106,12 @@ function showTeamsForSport(sport) {
 }
 
 function init() {
-    loadData();
-    showSports();
+    // loadData();
+    // showSports();
+    fetchFootballTeams();
+    fetchNHLTeams();
+    fetchMLBTeams();
+    fetchNBATeams();
 }
 
 init();
