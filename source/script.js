@@ -19,6 +19,20 @@ function extractTeamNames(data) { // Extract team names from the ESPN API respon
         .filter(Boolean);
 } // I'll be honest, copilot helped me with this one. I wasn't sure how to work through the layers of the JSON response.
 
+function extractScoreboard(data) { // Extract the scoreboard information from the ESPN API response
+    return (data?.events?.map(event => ({
+        name: event.name,
+        status: event.status?.type?.description,
+        competitors: event.competitions?.[0]?.competitors?.map(comp => ({
+            teamName: comp.team?.displayName,
+            score: comp.score
+        })) || []
+    })) || []);
+}
+
+
+// Get team names
+
 async function fetchFootballTeams() { // Get all NFL teams from the ESPN API
     try {
         const response = await fetch('https://site.api.espn.com/apis/site/v2/sports/football/nfl/teams');
@@ -71,7 +85,21 @@ async function fetchNBATeams() { // Get all NBA teams from the ESPN API
     }
 }
 
+// Get scoreboard info
 
+async function fetchFootballScoreboard(team) { // Get the NFL scoreboard information from the ESPN API
+    try {
+        const response = await fetch('https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard');
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        const data = await response.json();
+        console.log('NFL Scoreboard:', extractScoreboard(data));
+    } catch (error) {
+        console.error('Error fetching ESPN data:', error);
+    }
+}  // TODO: Allow team parameter to filter the scoreboard results to only show games involving that team.
+// TODO: Clean up JSON output to be more user-friendly.
 
 function showSports() {
     const sportSelector = document.getElementById('sport-selector');
@@ -112,6 +140,8 @@ function init() {
     fetchNHLTeams();
     fetchMLBTeams();
     fetchNBATeams();
+
+    fetchFootballScoreboard();
 }
 
 init();
