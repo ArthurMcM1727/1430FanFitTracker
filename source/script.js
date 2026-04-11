@@ -1,17 +1,4 @@
-let sportsData;
-
-async function loadData() {
-    try {
-        const response = await fetch('sports.json');
-        if (!response.ok) {
-            throw new Error('Network response was not ok');
-        }
-        const data = await response.json();
-        sportsData = data.sports;
-    } catch (error) {
-        console.error('Error loading sports data:', error);
-    }
-}
+let sportsData
 
 function extractTeamNames(data) { // Extract team names from the ESPN API response
     return (data?.sports?.[0]?.leagues?.[0]?.teams ?? [])
@@ -30,60 +17,111 @@ function extractScoreboard(data) { // Extract the scoreboard information from th
     })) || []);
 }
 
+async function loadSport(sport) {
+    // get sport from button click;
+    // pre determine leagues allowed for sports
+    let league;
+    if (sport === 'football') {
+        league = 'nfl';
+    } else if (sport === 'hockey') {
+        league = 'nhl';
+    } else if (sport === 'baseball') {
+        league = 'mlb';
+    } else if (sport === 'basketball') {
+        league = 'nba';
+    } else {
+        console.error('Unsupported sport:', sport);
+        return;
+    }
+
+    // fetch teams from API with user input and pre-determined leagues
+    try {
+        const response = await fetch(`https://site.api.espn.com/apis/site/v2/sports/${sport}/${league}/teams`);
+        console.log(response)
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const dynamicTeam = await response.json();
+        const teamNames = extractTeamNames(dynamicTeam);
+        
+        // Store in global variable
+        sportsData = teamNames;
+        
+        // Display teams in the UI
+        displayTeams(teamNames);
+        
+        console.log(`Fetched teams for ${sport} - ${league}:`, teamNames);
+    } catch (error) {
+        console.error('Error fetching ESPN data:', error);
+    }
+    
+    console.log(`selected sport: ${sport}, league: ${league}`);
+}
+
+// Add a helper function to display teams
+function displayTeams(teams) {
+    const teamList = document.getElementById('team-list');
+    teamList.innerHTML = ''; // Clear previous teams
+    teams.forEach(team => {
+        const teamDiv = document.createElement('div');
+        teamDiv.textContent = team;
+        teamList.appendChild(teamDiv);
+    });
+}
 
 // Get team names
 
-async function fetchFootballTeams() { // Get all NFL teams from the ESPN API
-    try {
-        const response = await fetch('https://site.api.espn.com/apis/site/v2/sports/football/nfl/teams');
-        if (!response.ok) {
-            throw new Error('Network response was not ok');
-        }
-        const data = await response.json();
-        console.log('NFL Teams:', extractTeamNames(data));
-    } catch (error) {
-        console.error('Error fetching ESPN data:', error);
-    }
-}
+// async function fetchFootballTeams() { // Get all NFL teams from the ESPN API
+//     try {
+//         const response = await fetch('https://site.api.espn.com/apis/site/v2/sports/football/nfl/teams');
+//         if (!response.ok) {
+//             throw new Error('Network response was not ok');
+//         }
+//         const data = await response.json();
+//         console.log('NFL Teams:', extractTeamNames(data));
+//     } catch (error) {
+//         console.error('Error fetching ESPN data:', error);
+//     }
+// }
 
-async function fetchNHLTeams() { // Get all NHL teams from the ESPN API
-    try {
-        const response = await fetch('https://site.api.espn.com/apis/site/v2/sports/hockey/nhl/teams');
-        if (!response.ok) {
-            throw new Error('Network response was not ok');
-        }
-        const data = await response.json();
-        console.log('NHL Teams:', extractTeamNames(data));
-    } catch (error) {
-        console.error('Error fetching ESPN data:', error);
-    }
-}
+// async function fetchNHLTeams() { // Get all NHL teams from the ESPN API
+//     try {
+//         const response = await fetch('https://site.api.espn.com/apis/site/v2/sports/hockey/nhl/teams');
+//         if (!response.ok) {
+//             throw new Error('Network response was not ok');
+//         }
+//         const data = await response.json();
+//         console.log('NHL Teams:', extractTeamNames(data));
+//     } catch (error) {
+//         console.error('Error fetching ESPN data:', error);
+//     }
+// }
 
-async function fetchMLBTeams() { // Get all MLB teams from the ESPN API
-    try {
-        const response = await fetch('https://site.api.espn.com/apis/site/v2/sports/baseball/mlb/teams');
-        if (!response.ok) {
-            throw new Error('Network response was not ok');
-        }
-        const data = await response.json();
-        console.log('MLB Teams:', extractTeamNames(data));
-    } catch (error) {
-        console.error('Error fetching ESPN data:', error);
-    }
-}
+// async function fetchMLBTeams() { // Get all MLB teams from the ESPN API
+//     try {
+//         const response = await fetch('https://site.api.espn.com/apis/site/v2/sports/baseball/mlb/teams');
+//         if (!response.ok) {
+//             throw new Error('Network response was not ok');
+//         }
+//         const data = await response.json();
+//         console.log('MLB Teams:', extractTeamNames(data));
+//     } catch (error) {
+//         console.error('Error fetching ESPN data:', error);
+//     }
+// }
 
-async function fetchNBATeams() { // Get all NBA teams from the ESPN API
-    try {
-        const response = await fetch('https://site.api.espn.com/apis/site/v2/sports/basketball/nba/teams');
-        if (!response.ok) {
-            throw new Error('Network response was not ok');
-        }
-        const data = await response.json();
-        console.log('NBA Teams:', extractTeamNames(data));
-    } catch (error) {
-        console.error('Error fetching ESPN data:', error);
-    }
-}
+// async function fetchNBATeams() { // Get all NBA teams from the ESPN API
+//     try {
+//         const response = await fetch('https://site.api.espn.com/apis/site/v2/sports/basketball/nba/teams');
+//         if (!response.ok) {
+//             throw new Error('Network response was not ok');
+//         }
+//         const data = await response.json();
+//         console.log('NBA Teams:', extractTeamNames(data));
+//     } catch (error) {
+//         console.error('Error fetching ESPN data:', error);
+//     }
+// }
 
 // Get scoreboard info
 
@@ -101,47 +139,24 @@ async function fetchFootballScoreboard(team) { // Get the NFL scoreboard informa
 }  // TODO: Allow team parameter to filter the scoreboard results to only show games involving that team.
 // TODO: Clean up JSON output to be more user-friendly.
 
-function showSports() {
-    const sportSelector = document.getElementById('sport-selector');
-    sportsData.forEach(sport => {
-        const sportButton = document.createElement('button');
-        sportButton.classList.add('sport-button');
-        sportButton.textContent = sport.name;
-        sportButton.addEventListener('click', () => showTeamsForSport(sport));
-        sportSelector.appendChild(sportButton);
-    });
-}
-
-function showTeamsForSport(sport) {
-    const teamList = document.getElementById('team-list');
-    teamList.innerHTML = ''; // Clear previous teams
-
-    const teamsContainer = document.createElement('div');
-    teamsContainer.classList.add('teams-container');
-
-    sport.teams.forEach(team => {
-        const teamCard = document.createElement('div');
-        teamCard.classList.add('team-card');
-
-        const teamName = document.createElement('h2');
-        teamName.textContent = team;
-        teamCard.appendChild(teamName);
-
-        teamsContainer.appendChild(teamCard);
-    });
-
-    teamList.appendChild(teamsContainer);
-}
-
 function init() {
     // loadData();
     // showSports();
-    fetchFootballTeams();
-    fetchNHLTeams();
-    fetchMLBTeams();
-    fetchNBATeams();
+    // fetchFootballTeams();
+    // fetchNHLTeams();
+    // fetchMLBTeams();
+    // fetchNBATeams();
 
-    fetchFootballScoreboard();
+    // fetchFootballScoreboard();
+    
+    // Add event listeners to sport cards
+    const sportCards = document.querySelectorAll('.sport-card');
+    sportCards.forEach(card => {
+        card.addEventListener('click', () => {
+            const sport = card.textContent.toLowerCase(); // Convert "Hockey" to "hockey"
+            loadSport(sport);
+        });
+    });
 }
 
 init();
