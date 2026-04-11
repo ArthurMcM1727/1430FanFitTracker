@@ -42,6 +42,7 @@ This project is in an early build stage. The UI sketch shows the planned layout,
 ## Future Improvements
 
 - Connect the team selector to real team data
+    -     - https://github.com/pseudo-r/Public-ESPN-API
 - Automatically create workouts from game events
 - Save completed workouts between sessions
 - Add a clearer season summary page for user review
