@@ -1,0 +1,4 @@
+Zach Saturday work:
+    1. redid some of ty's work to remove redundant code. Created multiple procedures for favorite teams like editing, removing, adding, storing.
+    2. Merged all changes from zach branch to main branch at end of day and wrote this.
+    3. console logged the shit out of this

@@ -1,16 +1,18 @@
 let sportsData;
 
-function extractScoreboard(data) { // Extract the scoreboard information from the ESPN API response
-    return (data?.events?.map(event => ({
-        name: event.name,
-        status: event.status?.type?.description,
-        competitors: event.competitions?.[0]?.competitors?.map(comp => ({
-            teamName: comp.team?.displayName,
-            score: comp.score
-        })) || []
-    })) || []);
-}
+// function extractScoreboard(data) { // Extract the scoreboard information from the ESPN API response
+//     return (data?.events?.map(event => ({
+//         name: event.name,
+//         status: event.status?.type?.description,
+//         competitors: event.competitions?.[0]?.competitors?.map(comp => ({
+//             teamName: comp.team?.displayName,
+//             score: comp.score
+//         })) || []
+//     })) || []);
+// }
 
+
+// bring sports data from ESPN API to our webpage. triggered by divs on click.
 async function loadSport(sport) {
     // get sport from button click;
     // pre determine leagues allowed for sports
@@ -66,6 +68,8 @@ function displayTeams(teamNames, sport) {
     document.body.appendChild(teamList);
 }
 
+
+// ensure proper cleanup of DOM elements when switching sports or chaning any more page information. 
 function clearDisplayArea() {
     const existingList = document.getElementById('team-list');
     if (existingList) {
@@ -160,6 +164,7 @@ function getFavoriteTeamForSport(sport) {
 }
 
 // Function to set a favorite team, storing it in localStorage with sport and team name
+//FIXME:: somehow three default teams get added to localStorage on page load and I don't know why or how
 function setFavoriteTeam(sport, teamName) {
     // Retrieve existing favorites from localStorage, or initialize as empty array
     const favorites = JSON.parse(localStorage.getItem('favoriteTeams')) || [];
@@ -184,6 +189,8 @@ function setFavoriteTeam(sport, teamName) {
     loadSport(sport);
 }
 
+
+// function for loading favorite teams onto webpage, essentially this entire function is DOM  for html in js. There is no logic control here
 function loadFavoriteTeam() {
     const favorites = JSON.parse(localStorage.getItem('favoriteTeams')) || [];
     clearDisplayArea();
@@ -279,7 +286,7 @@ function loadFavoriteTeam() {
 // }
 
 // Get scoreboard info
-
+// Zach - 2026-04,11: I did not mess with this at all and I have no clue what it does or how it works lol
 async function fetchFootballScoreboard(team) { // Get the NFL scoreboard information from the ESPN API
     try {
         const response = await fetch('https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard');
@@ -295,10 +302,10 @@ async function fetchFootballScoreboard(team) { // Get the NFL scoreboard informa
 // TODO: Clean up JSON output to be more user-friendly.
 
 
-
+//iniliaize any functions that need to run on page load. 
 function init() {
     // Load and display favorite teams on page load
-    loadFavoriteTeam();
+    loadFavoriteTeam(); // run at page load to access localStrorage for user
 }
 
 init();
