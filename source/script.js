@@ -1,10 +1,4 @@
-let sportsData
-
-function extractTeamNames(data) { // Extract team names from the ESPN API response
-    return (data?.sports?.[0]?.leagues?.[0]?.teams ?? [])
-        .map(entry => entry?.team?.displayName)
-        .filter(Boolean);
-} // I'll be honest, copilot helped me with this one. I wasn't sure how to work through the layers of the JSON response.
+let sportsData;
 
 function extractScoreboard(data) { // Extract the scoreboard information from the ESPN API response
     return (data?.events?.map(event => ({
@@ -38,6 +32,11 @@ async function loadSport(sport) {
     try {
         const response = await fetch(`https://site.api.espn.com/apis/site/v2/sports/${sport}/${league}/teams`);
         console.log('API response:', response);
+
+        data = await response.json();
+        console.log('API data:', data);
+        let teamNames = (data?.sports?.[0]?.leagues?.[0]?.teams ?? []).map(team => team?.team?.displayName).filter(Boolean);
+        console.log('Team names:', teamNames);
     } catch (error) {
         console.error('Error fetching ESPN data:', error);
     }
