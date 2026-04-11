@@ -33,10 +33,9 @@ async function loadSport(sport) {
         const response = await fetch(`https://site.api.espn.com/apis/site/v2/sports/${sport}/${league}/teams`);
         console.log('API response:', response);
 
-        data = await response.json();
-        console.log('API data:', data);
+        data = await response.json(); console.log('API data:', data);
         let teamNames = (data?.sports?.[0]?.leagues?.[0]?.teams ?? []).map(team => team?.team?.displayName).filter(Boolean);
-        console.log('Team names:', teamNames);
+        displayTeams(teamNames); console.log('Team names:', teamNames);
     } catch (error) {
         console.error('Error fetching ESPN data:', error);
     }
@@ -45,6 +44,53 @@ async function loadSport(sport) {
 
 }
 
+// show team names on the page, styling in css. DOM creation
+function displayTeams(teamNames) {
+    const teamList = document.createElement('div');
+    teamList.id = 'team-list';
+    teamNames.forEach(teamName => {
+        const teamItem = document.createElement('div');
+        teamItem.className = 'team-item';
+        teamItem.textContent = teamName;
+        teamItem.onclick = () => setFavoriteTeam('selectedSport', teamName);
+        teamList.appendChild(teamItem);
+    });
+    document.body.appendChild(teamList);
+
+}
+
+// Function to set a favorite team, storing it in localStorage with sport and team name
+function setFavoriteTeam(sport, teamName) {
+    // Retrieve existing favorites from localStorage, or initialize as empty array
+    const favorites = JSON.parse(localStorage.getItem('favoriteTeams')) || [];
+    
+    // Check if this team is already a favorite for this sport
+    const existingIndex = favorites.findIndex(fav => fav.sport === sport && fav.team === teamName);
+    
+    if (existingIndex === -1) {
+        // Add new favorite
+        favorites.push({ sport: sport, team: teamName });
+        console.log(`Added ${teamName} (${sport}) as a favorite.`);
+    } else {
+        // Optionally, you could remove it or alert that it's already a favorite
+        console.log(`${teamName} (${sport}) is already a favorite.`);
+        // To remove: favorites.splice(existingIndex, 1);
+    }
+    
+    // Save back to localStorage
+    localStorage.setItem('favoriteTeams', JSON.stringify(favorites));
+}
+
+function loadFavoriteTeam() {
+    const favorites = JSON.parse(localStorage.getItem('favoriteTeams')) || [];
+    if (favorites.length > 0) {
+        // For now, just log the favorites; you can display them on the page
+        console.log('Favorite teams:', favorites);
+        // TODO: Display favorites on the page, e.g., in a dedicated section
+    } else {
+        console.log('No favorite teams set.');
+    }
+}
 
 // Get team names
 
