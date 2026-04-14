@@ -78,3 +78,65 @@ header h1 {
     margin: 0;
     font-size: 16px;
 }
+
+#team-stats {
+    padding: 20px;
+    max-width: 600px;
+    margin: 20px auto;
+    font-family: Arial, sans-serif;
+}
+
+#team-stats h2 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+#stats-options {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.stat-option {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.stat-label {
+    font-size: 16px;
+    font-weight: bold;
+    min-width: 150px;
+}
+
+.counter-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.counter-btn {
+    width: 30px;
+    height: 30px;
+    font-size: 18px;
+    cursor: pointer;
+}
+
+.counter-display {
+    width: 50px;
+    height: 30px;
+    text-align: center;
+    font-size: 16px;
+}
+
+#submit-stats {
+    margin-top: 20px;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    width: 100%;
+}

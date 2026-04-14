@@ -108,6 +108,11 @@ function displayFavoriteTeam(teamName, sport) {
     removeButton.textContent = 'Remove Favorite Team';
     removeButton.onclick = () => removeFavoriteTeam(sport, teamName);
     teamList.appendChild(removeButton);
+
+    const inputStatsButton = document.createElement('button');
+    inputStatsButton.textContent = 'Input Game Stats for Workout Plan';
+    inputStatsButton.onclick = () => inputstats();
+    teamList.appendChild(inputStatsButton);
     
     document.body.appendChild(teamList);
 }
@@ -301,6 +306,106 @@ async function fetchFootballScoreboard(team) { // Get the NFL scoreboard informa
 }  // TODO: Allow team parameter to filter the scoreboard results to only show games involving that team.
 // TODO: Clean up JSON output to be more user-friendly.
 
+async function inputstats() {
+    try {
+        const favorites = JSON.parse(localStorage.getItem('favoriteTeams')) || [];
+        if (favorites.length === 0) {
+            console.error('No favorite team selected');
+            return;
+        }
+
+        const favoriteSport = favorites[0].sport;
+
+        const response = await fetch('./teams.json');
+        const sportsData = await response.json();
+
+        const sportData = sportsData.sports.find(
+            s => s.name.toLowerCase() === favoriteSport.toLowerCase()
+        );
+
+        if (!sportData) {
+            console.error(`Sport ${favoriteSport} not found in teams.json`);
+            return;
+        }
+
+        clearDisplayArea();
+
+        const teamstats = document.createElement('div');
+        teamstats.id = 'team-stats';
+
+        const title = document.createElement('h2');
+        title.textContent = 'Input Game Stats to Create Workout Plan';
+        teamstats.appendChild(title);
+
+        const favoriteTeam = document.createElement('h3');
+        favoriteTeam.textContent = `${favorites[0].team} (${favoriteSport})`;
+        teamstats.appendChild(favoriteTeam);
+
+        const optionsContainer = document.createElement('div');
+        optionsContainer.id = 'stats-options';
+
+        sportData.options.forEach(option => {
+            const optionRow = document.createElement('div');
+            optionRow.className = 'stat-option';
+
+            const label = document.createElement('span');
+            label.textContent = option;
+            label.className = 'stat-label';
+
+            const counterContainer = document.createElement('div');
+            counterContainer.className = 'counter-container';
+
+            const minusButton = document.createElement('button');
+            minusButton.textContent = '−';
+            minusButton.className = 'counter-btn';
+
+            const countDisplay = document.createElement('input');
+            countDisplay.type = 'number';
+            countDisplay.value = '0';
+            countDisplay.className = 'counter-display';
+
+            const plusButton = document.createElement('button');
+            plusButton.textContent = '+';
+            plusButton.className = 'counter-btn';
+
+            minusButton.onclick = () => {
+                const currentValue = parseInt(countDisplay.value);
+                if (currentValue > 0) {
+                    countDisplay.value = currentValue - 1;
+                }
+            };
+
+            plusButton.onclick = () => {
+                const currentValue = parseInt(countDisplay.value);
+                countDisplay.value = currentValue + 1;
+            };
+
+            counterContainer.appendChild(minusButton);
+            counterContainer.appendChild(countDisplay);
+            counterContainer.appendChild(plusButton);
+
+            optionRow.appendChild(label);
+            optionRow.appendChild(counterContainer);
+            optionsContainer.appendChild(optionRow);
+        });
+
+        teamstats.appendChild(optionsContainer);
+
+        const submitButton = document.createElement('button');
+        submitButton.textContent = 'Calculate Workout Plan';
+        submitButton.id = 'submit-stats';
+        submitButton.onclick = () => {
+            console.log('Calculating workout plan based on stats...');
+        };
+
+        teamstats.appendChild(submitButton);
+
+        document.body.appendChild(teamstats);
+
+    } catch (error) {
+        console.error('Error loading stats options:', error);
+    }
+}
 
 //iniliaize any functions that need to run on page load. 
 function init() {
