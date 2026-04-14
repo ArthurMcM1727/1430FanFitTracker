@@ -32,6 +32,21 @@
         <p class="status-message">Choose a sport and team to see current games.</p>
     </div>
 
+    <!--We can name this something different, but my thoughts are we can let the user pick their exercises and their reps:points ratio for each.-->
+    <section id="exercise-rules-section" aria-live="polite">
+        <h2>Exercise Rules</h2>
+        <p class="status-message">Set reps per point for each exercise.</p>
+        <div id="exercise-rules"></div>
+        <!--Here we can dynamically create new rules, using the button below button to add new exercises, or pull from our json if that's how we wanna do it.-->
+        <button id="add-rule-button" type="button">Add exercise</button>
+        <button id="generate-workout button" type="button">Generate your dynamic workout!</button>
+    </section>
+
+    <section id="workout-output" aria-live="polite">
+        <!--Here we can replace this in the js. This is just a placeholder until the user selects somm.-->
+        <p class="status-message">Select a team to generate a score-based workout.</p>
+    </section>
+
     <section id="favorites-section" aria-live="polite"></section>
 
     <script src="script.js"></script>
