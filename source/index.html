@@ -1,20 +1,40 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <meta charset="UTF-8">
     <title>1430 Fan Fit Tracker</title>
     <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
     <h1>1430 Fan Fit Tracker</h1>
-    <div id="sport-selector">
-            <!-- Treat each div as a button for more styling options and simplicity -->
-            <div class="sport-card" onclick="loadSport('hockey')">Hockey</div>
-            <div class="sport-card" onclick="loadSport('football')">Football</div>
-            <div class="sport-card" onclick="loadSport('baseball')">Baseball</div>
-            <div class="sport-card" onclick="loadSport('basketball')">Basketball</div>          
+    <div id="sport-selector" aria-label="Sport selector">
+        <button class="sport-card" type="button" onclick="loadSport('hockey')">Hockey</button>
+        <button class="sport-card" type="button" onclick="loadSport('football')">Football</button>
+        <button class="sport-card" type="button" onclick="loadSport('baseball')">Baseball</button>
+        <button class="sport-card" type="button" onclick="loadSport('basketball')">Basketball</button>
     </div>
+
+    <div id="team-selector" class="selector-block">
+        <label for="team-dropdown">Select Team</label>
+        <select id="team-dropdown" disabled>
+            <option value="">Select a sport first</option>
+        </select>
+
+        <label for="favorite-checkbox" class="favorite-toggle">
+            <input type="checkbox" id="favorite-checkbox" disabled>
+            Mark selected team as favorite
+        </label>
+    </div>
+
+    <div id="games-output" aria-live="polite">
+        <p class="status-message">Choose a sport and team to see current games.</p>
+    </div>
+
+    <section id="favorites-section" aria-live="polite"></section>
 
     <script src="script.js"></script>
 </body>
+
 </html>

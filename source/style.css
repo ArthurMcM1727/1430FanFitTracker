@@ -35,10 +35,13 @@ header h1 {
 }
 
 #sport-selector {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
     gap: 1rem;
     margin-bottom: 2rem;
+    width: min(900px, 92vw);
 }
 
 .sport-card,
@@ -52,12 +55,108 @@ header h1 {
     transition: all 0.3s ease;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
     font-size: 1rem;
+    min-width: 150px;
 }
 
 .sport-card:hover,
 .sport-button:hover {
     border-color: var(--accent);
     transform: translateY(-3px);
+}
+
+.sport-card.active {
+    border-color: var(--accent);
+    background: #fff4f2;
+}
+
+.selector-block {
+    width: min(420px, 92vw);
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-bottom: 1.25rem;
+}
+
+.selector-block label {
+    font-weight: 600;
+}
+
+.favorite-toggle {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 500;
+}
+
+.favorite-toggle input {
+    width: 16px;
+    height: 16px;
+}
+
+#team-dropdown {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #c7c7c7;
+    border-radius: 8px;
+    background: var(--white);
+    font-size: 1rem;
+}
+
+#games-output {
+    width: min(700px, 92vw);
+    background: var(--white);
+    border-radius: 10px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+    padding: 1rem;
+    margin-bottom: 2rem;
+}
+
+.status-message {
+    margin: 0;
+}
+
+.game-item {
+    border-top: 1px solid #ececec;
+    padding: 0.75rem 0;
+}
+
+.game-item:first-child {
+    border-top: none;
+    padding-top: 0;
+}
+
+#favorites-section {
+    width: min(700px, 92vw);
+    background: var(--white);
+    border-radius: 10px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+    padding: 1rem;
+    margin-bottom: 2rem;
+}
+
+#favorite-message {
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+}
+
+#favorite-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.favorite-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    border: 1px solid #e9e9e9;
+    border-radius: 8px;
+    padding: 0.5rem 0.75rem;
+}
+
+.favorite-row button {
+    padding: 0.35rem 0.6rem;
 }
 
 .teams-container {
