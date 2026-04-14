@@ -17,17 +17,6 @@ function saveFavorites(favorites) {
     localStorage.setItem('favoriteTeams', JSON.stringify(favorites));
 }
 
-// function extractScoreboard(data) { // Extract the scoreboard information from the ESPN API response
-//     return (data?.events?.map(event => ({
-//         name: event.name,
-//         status: event.status?.type?.description,
-//         competitors: event.competitions?.[0]?.competitors?.map(comp => ({
-//             teamName: comp.team?.displayName,
-//             score: comp.score
-//         })) || []
-//     })) || []);
-// }
-
 
 // bring sports data from ESPN API to our webpage. triggered by divs on click.
 async function loadSport(sport) {
@@ -42,13 +31,6 @@ async function loadSport(sport) {
     setActiveSportCard(sport);
 
     clearDisplayArea();
-
-    const favTeam = getFavoriteTeamForSport(sport);
-    if (favTeam) {
-        console.log(`Found favorite: ${favTeam} for ${sport}`);
-        displayFavoriteTeam(favTeam, sport);
-        return;
-    }
 
     try {
         const response = await fetch(`https://site.api.espn.com/apis/site/v2/sports/${sport}/${league}/teams`);
@@ -82,6 +64,129 @@ async function loadSport(sport) {
 
 }
 
+function setActiveSportCard(sport) {
+    const sportCards = document.querySelectorAll('#sport-selector .sport-card');
+    sportCards.forEach(card => {
+        card.classList.toggle('active', card.textContent.trim().toLowerCase() === sport);
+    });
+}
+
+function populateTeamDropdown(teamNames, sport) {
+    const dropdown = document.getElementById('team-dropdown');
+    const favoriteCheckbox = document.getElementById('favorite-checkbox');
+    if (!dropdown) {
+        return;
+    }
+
+    dropdown.innerHTML = '';
+
+    const defaultOption = document.createElement('option');
+    defaultOption.value = '';
+    defaultOption.textContent = `Select a ${sport} team`;
+    dropdown.appendChild(defaultOption);
+
+    teamNames.forEach(teamName => {
+        const option = document.createElement('option');
+        option.value = teamName;
+        option.textContent = teamName;
+        dropdown.appendChild(option);
+    });
+
+    dropdown.disabled = false;
+
+    if (favoriteCheckbox) {
+        favoriteCheckbox.checked = false;
+        favoriteCheckbox.disabled = true;
+    }
+}
+
+function updateFavoriteCheckbox(teamName) {
+    const favoriteCheckbox = document.getElementById('favorite-checkbox');
+    if (!favoriteCheckbox) {
+        return;
+    }
+
+    if (!selectedSport || !teamName) {
+        favoriteCheckbox.checked = false;
+        favoriteCheckbox.disabled = true;
+        return;
+    }
+
+    favoriteCheckbox.disabled = false;
+    favoriteCheckbox.checked = getFavoriteTeamForSport(selectedSport) === teamName;
+}
+
+async function fetchTeamGames(teamName) {
+    if (!selectedSport || !selectedLeague || !teamName) {
+        return;
+    }
+
+    setGamesMessage(`Loading current ${selectedSport} games for ${teamName}...`);
+
+    try {
+        const response = await fetch(`https://site.api.espn.com/apis/site/v2/sports/${selectedSport}/${selectedLeague}/scoreboard`);
+        if (!response.ok) {
+            throw new Error('Could not fetch scoreboard');
+        }
+
+        const data = await response.json();
+        const matchingGames = (data?.events ?? []).filter(event => {
+            const competitors = event?.competitions?.[0]?.competitors ?? [];
+            return competitors.some(comp => comp?.team?.displayName === teamName);
+        });
+
+        renderGames(matchingGames, teamName);
+    } catch (error) {
+        console.error('Error fetching team games:', error);
+        setGamesMessage('Could not load current games from ESPN right now.');
+    }
+}
+
+function renderGames(games, teamName) {
+    const output = document.getElementById('games-output');
+    if (!output) {
+        return;
+    }
+
+    output.innerHTML = '';
+
+    if (!games.length) {
+        setGamesMessage(`No current games found for ${teamName}.`);
+        return;
+    }
+
+    const heading = document.createElement('h3');
+    heading.textContent = `Today's games for ${teamName}`;
+    output.appendChild(heading);
+
+    games.forEach(game => {
+        const item = document.createElement('div');
+        item.className = 'game-item';
+
+        const status = game?.status?.type?.shortDetail || game?.status?.type?.description || 'Status unavailable';
+        const competitors = game?.competitions?.[0]?.competitors ?? [];
+        const matchup = competitors.map(comp => comp?.team?.shortDisplayName || comp?.team?.displayName).filter(Boolean).join(' vs ');
+        const score = competitors.map(comp => `${comp?.team?.abbreviation || comp?.team?.displayName}: ${comp?.score ?? '0'}`).join(' | ');
+
+        item.innerHTML = `
+            <strong>${matchup || game?.name || 'Game'}</strong><br>
+            <span>${status}</span><br>
+            <span>${score}</span>
+        `;
+
+        output.appendChild(item);
+    });
+}
+
+function setGamesMessage(message) {
+    const output = document.getElementById('games-output');
+    if (!output) {
+        return;
+    }
+
+    output.innerHTML = `<p class="status-message">${message}</p>`;
+}
+
 // show team names on the page, styling in css. DOM creation
 function displayTeams(teamNames, sport) {
     const teamList = document.createElement('div');
@@ -103,13 +208,9 @@ function clearDisplayArea() {
     if (existingList) {
         existingList.remove();
     }
-    const existingMessage = document.getElementById('favorite-message');
-    if (existingMessage) {
-        existingMessage.remove();
-    }
-    const existingFavoriteList = document.getElementById('favorite-list');
-    if (existingFavoriteList) {
-        existingFavoriteList.remove();
+    const existingTeamStats = document.getElementById('team-stats');
+    if (existingTeamStats) {
+        existingTeamStats.remove();
     }
 }
 
@@ -274,59 +375,6 @@ function syncFavoriteCheckboxFromSelection() {
     updateFavoriteCheckbox(dropdown.value);
 }
 
-// Get team names
-
-// async function fetchFootballTeams() { // Get all NFL teams from the ESPN API
-//     try {
-//         const response = await fetch('https://site.api.espn.com/apis/site/v2/sports/football/nfl/teams');
-//         if (!response.ok) {
-//             throw new Error('Network response was not ok');
-//         }
-//         const data = await response.json();
-//         console.log('NFL Teams:', extractTeamNames(data));
-//     } catch (error) {
-//         console.error('Error fetching ESPN data:', error);
-//     }
-// }
-
-// async function fetchNHLTeams() { // Get all NHL teams from the ESPN API
-//     try {
-//         const response = await fetch('https://site.api.espn.com/apis/site/v2/sports/hockey/nhl/teams');
-//         if (!response.ok) {
-//             throw new Error('Network response was not ok');
-//         }
-//         const data = await response.json();
-//         console.log('NHL Teams:', extractTeamNames(data));
-//     } catch (error) {
-//         console.error('Error fetching ESPN data:', error);
-//     }
-// }
-
-// async function fetchMLBTeams() { // Get all MLB teams from the ESPN API
-//     try {
-//         const response = await fetch('https://site.api.espn.com/apis/site/v2/sports/baseball/mlb/teams');
-//         if (!response.ok) {
-//             throw new Error('Network response was not ok');
-//         }
-//         const data = await response.json();
-//         console.log('MLB Teams:', extractTeamNames(data));
-//     } catch (error) {
-//         console.error('Error fetching ESPN data:', error);
-//     }
-// }
-
-// async function fetchNBATeams() { // Get all NBA teams from the ESPN API
-//     try {
-//         const response = await fetch('https://site.api.espn.com/apis/site/v2/sports/basketball/nba/teams');
-//         if (!response.ok) {
-//             throw new Error('Network response was not ok');
-//         }
-//         const data = await response.json();
-//         console.log('NBA Teams:', extractTeamNames(data));
-//     } catch (error) {
-//         console.error('Error fetching ESPN data:', error);
-//     }
-// }
 
 // Get scoreboard info
 // Zach - 2026-04,11: I did not mess with this at all and I have no clue what it does or how it works lol
