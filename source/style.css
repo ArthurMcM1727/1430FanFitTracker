@@ -111,6 +111,74 @@ header h1 {
     margin-bottom: 2rem;
 }
 
+#exercise-rules-section,
+#workout-output {
+    width: min(700px, 92vw);
+    background: var(--white);
+    border-radius: 10px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+    padding: 1rem;
+    margin-bottom: 2rem;
+}
+
+#exercise-rules {
+    display: flex;
+    flex-direction: column;
+    gap: 0.7rem;
+    margin-bottom: 0.8rem;
+}
+
+.rule-row {
+    display: grid;
+    grid-template-columns: 1fr 140px auto;
+    gap: 0.6rem;
+    align-items: center;
+    border: 1px solid #ebebeb;
+    border-radius: 8px;
+    padding: 0.6rem;
+}
+
+.rule-row input {
+    width: 100%;
+    padding: 0.45rem;
+    border: 1px solid #c7c7c7;
+    border-radius: 6px;
+}
+
+.rule-row button,
+#add-rule-button,
+#reset-rules-button,
+#generate-workout-button {
+    padding: 0.45rem 0.75rem;
+    cursor: pointer;
+}
+
+#add-rule-button,
+#reset-rules-button {
+    margin-right: 0.5rem;
+}
+
+.workout-item {
+    border-top: 1px solid #ececec;
+    padding: 0.7rem 0;
+}
+
+.workout-item:first-child {
+    border-top: none;
+    padding-top: 0;
+}
+
+.workout-total {
+    margin-top: 0.8rem;
+    font-weight: 700;
+}
+
+@media (max-width: 620px) {
+    .rule-row {
+        grid-template-columns: 1fr;
+    }
+}
+
 .status-message {
     margin: 0;
 }

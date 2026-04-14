@@ -32,6 +32,19 @@
         <p class="status-message">Choose a sport and team to see current games.</p>
     </div>
 
+    <section id="exercise-rules-section" aria-live="polite">
+        <h2>Exercise Rules</h2>
+        <p class="status-message">Set reps per point for each exercise. Example: score x 5 pushups.</p>
+        <div id="exercise-rules"></div>
+        <button id="add-rule-button" type="button">Add Exercise Rule</button>
+        <button id="reset-rules-button" type="button">Reset Rules</button>
+        <button id="generate-workout-button" type="button">Generate Workout From Team Score</button>
+    </section>
+
+    <section id="workout-output" aria-live="polite">
+        <p class="status-message">Select a team to generate a score-based workout.</p>
+    </section>
+
     <section id="favorites-section" aria-live="polite"></section>
 
     <script src="script.js"></script>

@@ -1,6 +1,9 @@
 let sportsData;
 let selectedSport = '';
 let selectedLeague = '';
+let selectedTeamName = '';
+let latestSelectedTeamScore = null;
+let latestSelectedTeamStatus = '';
 
 const SPORT_LEAGUE_MAP = {
     football: 'nfl',
@@ -9,12 +12,229 @@ const SPORT_LEAGUE_MAP = {
     basketball: 'nba'
 };
 
+const EXERCISE_RULES_KEY = 'exerciseRules';
+const DEFAULT_EXERCISE_RULES = {
+    rules: [
+        { exercise: 'pushups', repsPerPoint: 5 }
+    ]
+};
+
 function getFavorites() {
     return JSON.parse(localStorage.getItem('favoriteTeams')) || [];
 }
 
 function saveFavorites(favorites) {
     localStorage.setItem('favoriteTeams', JSON.stringify(favorites));
+}
+
+function normalizeExerciseRules(rawRules) {
+    const parsedLegacyBase = Number(rawRules?.basePointsMultiplier);
+    const safeLegacyBase = Number.isFinite(parsedLegacyBase) && parsedLegacyBase > 0 ? parsedLegacyBase : 5;
+    const sourceRules = Array.isArray(rawRules?.rules) ? rawRules.rules : [];
+    const safeRules = sourceRules
+        .map(rule => {
+            const exercise = typeof rule?.exercise === 'string' ? rule.exercise.trim() : '';
+            const repsPerPointValue = Number(rule?.repsPerPoint);
+            const legacyMultiplier = Number(rule?.multiplier);
+            const derivedFromLegacy = Number.isFinite(legacyMultiplier) && legacyMultiplier > 0
+                ? safeLegacyBase * legacyMultiplier
+                : NaN;
+
+            const safeRepsPerPoint = Number.isFinite(repsPerPointValue) && repsPerPointValue > 0
+                ? repsPerPointValue
+                : Number.isFinite(derivedFromLegacy) && derivedFromLegacy > 0
+                    ? derivedFromLegacy
+                    : 5;
+
+            return {
+                exercise,
+                repsPerPoint: safeRepsPerPoint
+            };
+        })
+        .filter(rule => rule.exercise.length > 0);
+
+    return {
+        rules: safeRules.length ? safeRules : [...DEFAULT_EXERCISE_RULES.rules]
+    };
+}
+
+function getExerciseRules() {
+    const rawRules = JSON.parse(localStorage.getItem(EXERCISE_RULES_KEY));
+    const normalized = normalizeExerciseRules(rawRules || DEFAULT_EXERCISE_RULES);
+    console.log('Loaded exercise rules from localStorage:', normalized);
+    return normalized;
+}
+
+function saveExerciseRules(rules) {
+    const normalized = normalizeExerciseRules(rules);
+    localStorage.setItem(EXERCISE_RULES_KEY, JSON.stringify(normalized));
+    console.log('Saved exercise rules to localStorage:', normalized);
+}
+
+function getLatestTeamScoreDetails(games, teamName) {
+    for (const game of games) {
+        const competitors = game?.competitions?.[0]?.competitors || [];
+        const teamComp = competitors.find(comp => comp?.team?.displayName === teamName);
+        if (!teamComp) {
+            continue;
+        }
+
+        const score = Number(teamComp?.score);
+        const parsedScore = Number.isFinite(score) ? score : null;
+        return {
+            score: parsedScore,
+            status: game?.status?.type?.description || 'Status unavailable'
+        };
+    }
+
+    return {
+        score: null,
+        status: 'No game found'
+    };
+}
+
+function setWorkoutMessage(message) {
+    const output = document.getElementById('workout-output');
+    if (!output) {
+        return;
+    }
+
+    output.innerHTML = `<p class="status-message">${message}</p>`;
+}
+
+function renderWorkoutPlan() {
+    console.log('Attempting to render workout plan with score and rules:', {
+        selectedTeamName,
+        latestSelectedTeamScore,
+        latestSelectedTeamStatus
+    });
+
+    if (!selectedTeamName) {
+        setWorkoutMessage('Select a team first to generate a workout.');
+        return;
+    }
+
+    if (latestSelectedTeamScore === null) {
+        setWorkoutMessage(`No score is available yet for ${selectedTeamName}.`);
+        return;
+    }
+
+    const rulesConfig = getExerciseRules();
+    const output = document.getElementById('workout-output');
+    if (!output) {
+        return;
+    }
+
+    let totalReps = 0;
+    const fragments = [];
+
+    rulesConfig.rules.forEach(rule => {
+        const reps = Math.round(latestSelectedTeamScore * rule.repsPerPoint);
+        totalReps += reps;
+        fragments.push(`
+            <div class="workout-item">
+                <strong>${rule.exercise}:</strong> ${reps} reps
+                <div>Formula: ${latestSelectedTeamScore} (score) x ${rule.repsPerPoint} (reps/point)</div>
+            </div>
+        `);
+    });
+
+    output.innerHTML = `
+        <h3>Workout for ${selectedTeamName}</h3>
+        <p>Status: ${latestSelectedTeamStatus}</p>
+        ${fragments.join('')}
+        <p class="workout-total">Total reps: ${totalReps}</p>
+    `;
+
+    console.log('Workout generated successfully.', {
+        selectedTeamName,
+        totalReps,
+        score: latestSelectedTeamScore,
+        rules: rulesConfig
+    });
+}
+
+function updateRuleField(index, field, value) {
+    const currentRules = getExerciseRules();
+    if (!currentRules.rules[index]) {
+        return;
+    }
+
+    currentRules.rules[index][field] = field === 'repsPerPoint' ? Number(value) : value;
+    saveExerciseRules(currentRules);
+    renderExerciseRulesEditor();
+}
+
+function removeExerciseRule(index) {
+    const currentRules = getExerciseRules();
+    if (currentRules.rules.length <= 1) {
+        console.log('Rule remove skipped because at least one rule is required.');
+        return;
+    }
+
+    currentRules.rules.splice(index, 1);
+    saveExerciseRules(currentRules);
+    renderExerciseRulesEditor();
+}
+
+function addExerciseRule() {
+    const currentRules = getExerciseRules();
+    currentRules.rules.push({ exercise: 'squats', repsPerPoint: 5 });
+    console.log('Adding new exercise rule row.');
+    saveExerciseRules(currentRules);
+    renderExerciseRulesEditor();
+}
+
+function resetExerciseRules() {
+    console.log('Resetting exercise rules to defaults.');
+    saveExerciseRules(DEFAULT_EXERCISE_RULES);
+    renderExerciseRulesEditor();
+    setWorkoutMessage('Exercise rules reset to default values.');
+}
+
+function renderExerciseRulesEditor() {
+    const container = document.getElementById('exercise-rules');
+    if (!container) {
+        return;
+    }
+
+    const rulesConfig = getExerciseRules();
+    container.innerHTML = '';
+
+    rulesConfig.rules.forEach((rule, index) => {
+        const row = document.createElement('div');
+        row.className = 'rule-row';
+
+        const exerciseInput = document.createElement('input');
+        exerciseInput.type = 'text';
+        exerciseInput.value = rule.exercise;
+        exerciseInput.placeholder = 'Exercise name';
+        exerciseInput.addEventListener('change', (event) => {
+            updateRuleField(index, 'exercise', event.target.value);
+        });
+
+        const repsInput = document.createElement('input');
+        repsInput.type = 'number';
+        repsInput.min = '1';
+        repsInput.step = '1';
+        repsInput.value = String(rule.repsPerPoint ?? 5);
+        repsInput.title = 'Reps per point';
+        repsInput.addEventListener('change', (event) => {
+            updateRuleField(index, 'repsPerPoint', event.target.value);
+        });
+
+        const removeButton = document.createElement('button');
+        removeButton.type = 'button';
+        removeButton.textContent = 'Remove';
+        removeButton.addEventListener('click', () => {
+            removeExerciseRule(index);
+        });
+
+        row.appendChild(exerciseInput);
+        row.appendChild(repsInput);
+        row.appendChild(removeButton);
+        container.appendChild(row);
+    });
 }
 
 
@@ -28,11 +248,15 @@ async function loadSport(sport) {
 
     selectedSport = sport;
     selectedLeague = league;
+    selectedTeamName = '';
+    latestSelectedTeamScore = null;
+    latestSelectedTeamStatus = '';
     setActiveSportCard(sport);
 
     clearDisplayArea();
 
     try {
+        console.log(`Fetching teams for sport=${sport}, league=${league}`);
         const response = await fetch(`https://site.api.espn.com/apis/site/v2/sports/${sport}/${league}/teams`);
         if (!response.ok) {
             throw new Error(`Failed to load teams for ${sport}`);
@@ -45,16 +269,19 @@ async function loadSport(sport) {
             .sort((a, b) => a.localeCompare(b));
 
         populateTeamDropdown(teamNames, sport);
+        console.log(`Loaded ${teamNames.length} teams for ${sport}.`);
 
         const favoriteTeam = getFavoriteTeamForSport(sport);
         const dropdown = document.getElementById('team-dropdown');
         if (favoriteTeam && dropdown && teamNames.includes(favoriteTeam)) {
             dropdown.value = favoriteTeam;
+            selectedTeamName = favoriteTeam;
             updateFavoriteCheckbox(favoriteTeam);
             fetchTeamGames(favoriteTeam);
         } else {
             updateFavoriteCheckbox('');
             setGamesMessage('Select a team to view current games.');
+            setWorkoutMessage('Select a team to generate a score-based workout.');
         }
     } catch (error) {
         console.error('Error fetching ESPN data:', error);
@@ -118,8 +345,15 @@ function updateFavoriteCheckbox(teamName) {
 
 async function fetchTeamGames(teamName) {
     if (!selectedSport || !selectedLeague || !teamName) {
+        console.log('fetchTeamGames skipped due to missing sport/league/team context.');
         return;
     }
+
+    selectedTeamName = teamName;
+    latestSelectedTeamScore = null;
+    latestSelectedTeamStatus = '';
+
+    console.log(`Fetching scoreboard for sport=${selectedSport}, league=${selectedLeague}, team=${teamName}`);
 
     setGamesMessage(`Loading current ${selectedSport} games for ${teamName}...`);
 
@@ -135,10 +369,23 @@ async function fetchTeamGames(teamName) {
             return competitors.some(comp => comp?.team?.displayName === teamName);
         });
 
+        const scoreDetails = getLatestTeamScoreDetails(matchingGames, teamName);
+        latestSelectedTeamScore = scoreDetails.score;
+        latestSelectedTeamStatus = scoreDetails.status;
+
+        console.log('Score details resolved for selected team:', {
+            teamName,
+            matchingGames: matchingGames.length,
+            score: latestSelectedTeamScore,
+            status: latestSelectedTeamStatus
+        });
+
         renderGames(matchingGames, teamName);
+        setWorkoutMessage(`Ready to generate workout for ${teamName}. Current score: ${latestSelectedTeamScore ?? 'N/A'}.`);
     } catch (error) {
         console.error('Error fetching team games:', error);
         setGamesMessage('Could not load current games from ESPN right now.');
+        setWorkoutMessage('Could not load ESPN score. Try again in a moment.');
     }
 }
 
@@ -497,14 +744,17 @@ async function inputstats() {
 function init() {
     // Load and display favorite teams on page load
     loadFavoriteTeam(); // run at page load to access localStrorage for user
+    renderExerciseRulesEditor();
 
     const teamDropdown = document.getElementById('team-dropdown');
     if (teamDropdown) {
         teamDropdown.addEventListener('change', (event) => {
             const selectedTeam = event.target.value;
+            console.log(`Team dropdown changed to: ${selectedTeam || '(none)'}`);
             updateFavoriteCheckbox(selectedTeam);
             if (!selectedTeam) {
                 setGamesMessage('Select a team to view current games.');
+                setWorkoutMessage('Select a team to generate a score-based workout.');
                 return;
             }
             fetchTeamGames(selectedTeam);
@@ -516,6 +766,7 @@ function init() {
         favoriteCheckbox.addEventListener('change', (event) => {
             const dropdown = document.getElementById('team-dropdown');
             const selectedTeam = dropdown ? dropdown.value : '';
+            console.log(`Favorite checkbox toggled: checked=${event.target.checked}, team=${selectedTeam}, sport=${selectedSport}`);
 
             if (!selectedSport || !selectedTeam) {
                 event.target.checked = false;
@@ -527,6 +778,28 @@ function init() {
             } else {
                 removeFavoriteTeam(selectedSport, selectedTeam);
             }
+        });
+    }
+
+    const addRuleButton = document.getElementById('add-rule-button');
+    if (addRuleButton) {
+        addRuleButton.addEventListener('click', () => {
+            addExerciseRule();
+        });
+    }
+
+    const resetRulesButton = document.getElementById('reset-rules-button');
+    if (resetRulesButton) {
+        resetRulesButton.addEventListener('click', () => {
+            resetExerciseRules();
+        });
+    }
+
+    const generateWorkoutButton = document.getElementById('generate-workout-button');
+    if (generateWorkoutButton) {
+        generateWorkoutButton.addEventListener('click', () => {
+            console.log('Generate workout button clicked.');
+            renderWorkoutPlan();
         });
     }
 }
