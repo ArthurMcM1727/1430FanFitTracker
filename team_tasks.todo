@@ -4,9 +4,9 @@ Ty Tasks:
 Final Project To‑Do List
  
 1. Data + Setup:
-- Create libraries for NHL, NFL, MLB, NBA to store team data 
-- Create exercise rules libraries for each sport (push‑ups, sit‑ups, etc.)
-- Set up LocalStorage structure (favorite team, goals, progress)
+    ☐ Create libraries for NHL, NFL, MLB, NBA to store team data 
+    ☐ Create exercise rules libraries for each sport (push‑ups, sit‑ups, etc.)
+    ☐ Set up LocalStorage structure (favorite team, goals, progress)
 
 2. Backend Logic:
     Create classes for:
