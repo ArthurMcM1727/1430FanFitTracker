@@ -361,6 +361,15 @@ function loadFavoriteTeam() {
             favoriteList.appendChild(row);
         });
         favoritesSection.appendChild(favoriteList);
+
+        const inputStatsButton = document.createElement('button');
+        inputStatsButton.id = 'favorite-input-stats-button';
+        inputStatsButton.textContent = 'Input Game Stats for Workout Plan';
+        inputStatsButton.onclick = () => {
+            console.log('Bottom Input Game Stats button clicked.');
+            inputstats();
+        };
+        favoritesSection.appendChild(inputStatsButton);
     } else {
         message.textContent = 'No favorite teams yet. Please select a sport and add at least one team.';
     }
@@ -532,3 +541,4 @@ function init() {
 }
 
 init();
+
