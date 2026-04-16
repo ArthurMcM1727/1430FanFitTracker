@@ -1,5 +1,5 @@
 Ty Tasks:
-    ☐ finish readME document est(2h)
+    ✔ finish readME document est(2h) @done(26-04-16 11:42)
 
 Final Project To‑Do List
  
@@ -10,31 +10,31 @@ Final Project To‑Do List
 
 2. Backend Logic:
     Create classes for:
-    ☐ Team
+    ✔ Team @done(26-04-16 11:42)
     ☐ Workout Rule
     ☐ Workout Session / Progress Tracker
     ☐ Add functions to:
-    ☐ Save/load favorite team
-    ☐ Save/load workout goals
+    ✔ Save/load favorite team @done(26-04-16 11:42)
+    ✘ Save/load workout goals @cancelled(26-04-16 11:43)
 - Save/load progress
-- Update totals
+☐ Update totals
 
 3. API Integration:
-    ☐ Connect to each league’s API (or api-sports.io) #Public-ESPN-API
-    ☐ Fetch game results for the user’s team
-    ☐ Parse events (goals, touchdowns, penalties, etc.)
+    ✔ Connect to each league’s API (or api-sports.io) #Public-ESPN-API @done(26-04-16 11:43)
+    ☐ Fetch game results for the user’s team @started(26-04-16 11:43)
+    ☐ Parse events (goals, touchdowns, penalties, etc.) @started(26-04-16 11:43)
     ☐ Convert events → exercises using your rules
     ☐ Update the user’s “exercises due” automatically
 
 4. Link Frontend + Backend:
-    ☐ Display fetched game stats in the UI
+    ☐ Display fetched game stats in the UI @started(26-04-16 11:43)
     ☐ Display calculated exercises
     ☐ Add buttons for “mark exercise complete”
     ☐ Update LocalStorage when user logs progress
-    ☐ Show season summary
+    ✘ Show season summary @cancelled(26-04-16 11:44)
 
 5. Testing + Debugging:
-    ☐ Test API calls for all sports
+    ✔ Test API calls for all sports @done(26-04-16 11:44)
     ☐ Test LocalStorage saving/loading @done
     ☐ Test UI interactions (buttons, forms, navigation)
     ☐ Fix layout issues
