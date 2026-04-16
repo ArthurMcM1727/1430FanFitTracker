@@ -1,6 +1,7 @@
 let sportsData;
 let selectedSport = '';
 let selectedLeague = '';
+let selectedTeam = '';
 
 const SPORT_LEAGUE_MAP = {
     football: 'nfl',
@@ -17,6 +18,178 @@ function saveFavorites(favorites) {
     localStorage.setItem('favoriteTeams', JSON.stringify(favorites));
 }
 
+function getWorkoutStorageKey(sport, team) {
+    return `workouts_${sport}_${team}`;
+}
+
+function getStoredWorkouts(sport, team) {
+    if (!sport || !team) {
+        return [];
+    }
+    const key = getWorkoutStorageKey(sport, team);
+    return JSON.parse(localStorage.getItem(key)) || [];
+}
+
+function saveStoredWorkouts(sport, team, workouts) {
+    if (!sport || !team) {
+        return;
+    }
+    const key = getWorkoutStorageKey(sport, team);
+    localStorage.setItem(key, JSON.stringify(workouts));
+}
+
+function renderWorkoutSection(sport, team) {
+    const workoutList = document.getElementById('workout-list');
+    const workoutHelp = document.getElementById('workout-help');
+    const workoutSummary = document.getElementById('workout-summary');
+    if (!workoutList || !workoutHelp || !workoutSummary) {
+        return;
+    }
+
+    if (!sport || !team) {
+        workoutHelp.textContent = 'Select a sport and team to save custom workouts for that favorite team.';
+        workoutSummary.textContent = '';
+        workoutList.innerHTML = '<p class="status-message">Workouts are saved per team and sport once a team is selected.</p>';
+        return;
+    }
+
+    const workouts = getStoredWorkouts(sport, team);
+    const dueCount = workouts.filter(workout => !workout.completed).length;
+    const completedCount = workouts.filter(workout => workout.completed).length;
+    workoutHelp.textContent = `Workouts saved for ${team} (${sport}). These are stored locally in your browser.`;
+    workoutSummary.textContent = `Exercises due: ${dueCount} | Completed: ${completedCount}`;
+
+    if (!workouts.length) {
+        workoutList.innerHTML = '<p class="status-message">No saved workouts yet. Add one above.</p>';
+        return;
+    }
+
+    workoutList.innerHTML = '';
+    workouts.forEach((workout, index) => {
+        const card = document.createElement('div');
+        card.className = 'workout-card';
+        if (workout.completed) {
+            card.classList.add('completed');
+        }
+
+        const details = document.createElement('div');
+        details.className = 'workout-details';
+        details.innerHTML = `<strong>${workout.name}</strong>`;
+
+        const repsLabel = document.createElement('label');
+        repsLabel.textContent = 'Reps:';
+        repsLabel.className = 'rep-label';
+
+        const repsInput = document.createElement('input');
+        repsInput.type = 'number';
+        repsInput.min = '1';
+        repsInput.value = workout.reps;
+        repsInput.className = 'rep-input';
+        repsInput.onchange = () => updateWorkoutReps(index, parseInt(repsInput.value, 10), sport, team);
+
+        const addRepsButton = document.createElement('button');
+        addRepsButton.type = 'button';
+        addRepsButton.className = 'add-reps-button';
+        addRepsButton.textContent = '+';
+        addRepsButton.onclick = () => {
+            const newReps = parseInt(repsInput.value, 10) + 1;
+            repsInput.value = newReps;
+            updateWorkoutReps(index, newReps, sport, team);
+        };
+
+        const actions = document.createElement('div');
+        actions.className = 'workout-actions';
+
+        const completeButton = document.createElement('button');
+        completeButton.type = 'button';
+        completeButton.className = 'complete-workout-button';
+        completeButton.textContent = workout.completed ? 'Undo' : 'Complete';
+        completeButton.onclick = () => toggleWorkoutCompleted(index, sport, team);
+
+        const removeButton = document.createElement('button');
+        removeButton.type = 'button';
+        removeButton.className = 'remove-workout-button';
+        removeButton.textContent = 'Remove';
+        removeButton.onclick = () => removeWorkoutFromSavedList(index, sport, team);
+
+        actions.appendChild(repsLabel);
+        actions.appendChild(repsInput);
+        actions.appendChild(addRepsButton);
+        actions.appendChild(completeButton);
+        actions.appendChild(removeButton);
+
+        card.appendChild(details);
+        card.appendChild(actions);
+        workoutList.appendChild(card);
+    });
+}
+
+function updateWorkoutReps(index, reps, sport, team) {
+    if (!sport || !team || isNaN(reps) || reps < 1) {
+        renderWorkoutSection(selectedSport, selectedTeam);
+        return;
+    }
+    const workouts = getStoredWorkouts(sport, team);
+    if (index < 0 || index >= workouts.length) {
+        return;
+    }
+    workouts[index].reps = reps;
+    saveStoredWorkouts(sport, team, workouts);
+    renderWorkoutSection(sport, team);
+}
+
+function toggleWorkoutCompleted(index, sport, team) {
+    const workouts = getStoredWorkouts(sport, team);
+    if (index < 0 || index >= workouts.length) {
+        return;
+    }
+    workouts[index].completed = !workouts[index].completed;
+    saveStoredWorkouts(sport, team, workouts);
+    renderWorkoutSection(sport, team);
+}
+
+function addWorkoutFromForm() {
+    const nameField = document.getElementById('workout-name');
+    const repsField = document.getElementById('workout-reps');
+    if (!nameField || !repsField) {
+        return;
+    }
+
+    const workoutName = nameField.value.trim();
+    const workoutReps = parseInt(repsField.value, 10);
+
+    if (!selectedSport || !selectedTeam) {
+        alert('Please select a sport and team before adding workouts.');
+        return;
+    }
+
+    if (!workoutName) {
+        alert('Enter an exercise name.');
+        return;
+    }
+
+    if (!workoutReps || workoutReps < 1) {
+        alert('Enter a valid number of reps.');
+        return;
+    }
+
+    const workouts = getStoredWorkouts(selectedSport, selectedTeam);
+    workouts.push({ name: workoutName, reps: workoutReps, completed: false });
+    saveStoredWorkouts(selectedSport, selectedTeam, workouts);
+    nameField.value = '';
+    repsField.value = '10';
+    renderWorkoutSection(selectedSport, selectedTeam);
+}
+
+function removeWorkoutFromSavedList(index, sport, team) {
+    const workouts = getStoredWorkouts(sport, team);
+    if (index < 0 || index >= workouts.length) {
+        return;
+    }
+    workouts.splice(index, 1);
+    saveStoredWorkouts(sport, team, workouts);
+    renderWorkoutSection(sport, team);
+}
 
 // bring sports data from ESPN API to our webpage. triggered by divs on click.
 async function loadSport(sport) {
@@ -50,12 +223,15 @@ async function loadSport(sport) {
         const dropdown = document.getElementById('team-dropdown');
         if (favoriteTeam && dropdown && teamNames.includes(favoriteTeam)) {
             dropdown.value = favoriteTeam;
+            selectedTeam = favoriteTeam;
             updateFavoriteCheckbox(favoriteTeam);
             fetchTeamGames(favoriteTeam);
         } else {
+            selectedTeam = '';
             updateFavoriteCheckbox('');
             setGamesMessage('Select a team to view current games.');
         }
+        renderWorkoutSection(selectedSport, selectedTeam);
     } catch (error) {
         console.error('Error fetching ESPN data:', error);
     }
@@ -254,6 +430,7 @@ function removeFavoriteTeam(sport, teamName) {
         saveFavorites(favorites);
         loadFavoriteTeam();
         syncFavoriteCheckboxFromSelection();
+        renderWorkoutSection(selectedSport, selectedTeam);
         console.log(`Removed favorite team ${removed.team} for ${removed.sport}.`);
     } else {
         console.log(`No favorite team found for ${sport} to remove.`);
@@ -315,6 +492,8 @@ function setFavoriteTeam(sport, teamName) {
     saveFavorites(favorites);
     loadFavoriteTeam();
     syncFavoriteCheckboxFromSelection();
+    selectedTeam = teamName;
+    renderWorkoutSection(sport, teamName);
 }
 
 
@@ -494,15 +673,24 @@ function init() {
     const teamDropdown = document.getElementById('team-dropdown');
     if (teamDropdown) {
         teamDropdown.addEventListener('change', (event) => {
-            const selectedTeam = event.target.value;
+            selectedTeam = event.target.value;
             updateFavoriteCheckbox(selectedTeam);
             if (!selectedTeam) {
                 setGamesMessage('Select a team to view current games.');
+                renderWorkoutSection(selectedSport, selectedTeam);
                 return;
             }
             fetchTeamGames(selectedTeam);
+            renderWorkoutSection(selectedSport, selectedTeam);
         });
     }
+
+    const addWorkoutButton = document.getElementById('add-workout-button');
+    if (addWorkoutButton) {
+        addWorkoutButton.addEventListener('click', addWorkoutFromForm);
+    }
+
+    renderWorkoutSection(selectedSport, selectedTeam);
 
     const favoriteCheckbox = document.getElementById('favorite-checkbox');
     if (favoriteCheckbox) {

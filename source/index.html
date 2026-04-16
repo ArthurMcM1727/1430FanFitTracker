@@ -47,6 +47,24 @@
         <p class="status-message">Select a team to generate a score-based workout.</p>
     </section>
 
+    <section id="workout-section" aria-live="polite">
+        <h2>Custom Workouts</h2>
+        <div id="workout-controls">
+            <div class="input-row">
+                <label for="workout-name">Exercise</label>
+                <input id="workout-name" type="text" placeholder="Exercise name">
+
+                <label for="workout-reps">Reps</label>
+                <input id="workout-reps" type="number" min="1" value="10">
+
+                <button id="add-workout-button" type="button">Add workout</button>
+            </div>
+            <p id="workout-help" class="status-message">Workouts are saved per selected team and sport.</p>
+            <p id="workout-summary" class="status-message"></p>
+        </div>
+        <div id="workout-list"></div>
+    </section>
+
     <section id="favorites-section" aria-live="polite"></section>
 
     <script src="script.js"></script>
