@@ -1,48 +1,31 @@
-# WEB 1430 FanFitTracker
+# FanFit Tracker
 
-FanFit Tracker is a fitness program that turns what happens in a sports game into a workout plan. Users pick a favorite team, watch the game, and then receive a short workout built from game events such as touchdowns, penalties, fouls, or other match moments. The app also tracks what exercises are due, what has been completed, and a season total so users can review their progress over time.
+FanFit Tracker turns live sports data into a workout builder. Users pick a sport and team, then create workouts based on custom game events like fouls, power plays, hat tricks, or the live score from ESPN.
 
 ## Key Features
 
-- Add a favorite team for your sport from the following 3 sports: 
-    - Football
-    - Hockey
-    - Baseball
-    - Basketball
-- Generate a short workout list based on events from a game
-- Track total exercises due and total exercises completed
-- Store the user's favorite team, customized workout goals, due work, and completed work with JavaScript
-- Show a season review so users can see their workout progress at the end of each season
-- Use CSS to make creating workouts, logging workouts, and checking workout progress easy to use
+- Load teams for football, hockey, baseball, and basketball from ESPN
+- Create custom workouts with a base rep count and a custom event label
+- Multiply workouts by a manual event count or the live score for the selected team or opponent
+- Store workouts locally per sport and team
+- Track due and completed reps in a dark-mode friendly interface
 
 ## How It Works
 
-1. The user selects a sport and chooses a favorite team.
-2. Game events are used to create workout items.
-3. The app shows how many exercises are still due and how many have been completed.
-4. The user can log workouts as they finish them.
-5. At the end of the season, the app provides a summary of total progress.
+1. The user selects a sport and then chooses a team from the ESPN team list.
+2. The app shows current games and scores for that team.
+3. The user creates workouts with either a custom event count or the live score as the multiplier.
+4. Workouts are saved in localStorage and can be marked complete, edited, or removed.
 
 ## Project Files
 
-- [README.md](README.md) - Project overview and instructions
+- [README.md](README.md) - Project overview
 - [UI_sketch.html](UI_sketch.html) - Early UI sketch and layout idea for the app
-- [teams.json](teams.json) - Team data placeholder for favorite team information
+- [source/index.html](source/index.html) - Main page structure
+- [source/script.js](source/script.js) - ESPN data loading and workout logic
+- [source/style.css](source/style.css) - Responsive styling
 
-## Tech Stack
+## Notes
 
-- HTML
-- CSS
-- JavaScript
-
-## Current Status
-
-This project is in an early build stage. The UI sketch shows the planned layout, and the data file is ready for team information. The README describes the intended feature set for the final project.
-
-## Future Improvements
-
-- Connect the team selector to real team data
-    -     - https://github.com/pseudo-r/Public-ESPN-API
-- Automatically create workouts from game events
-- Save completed workouts between sessions
-- Add a clearer season summary page for user review
+- The app no longer uses a local team JSON file.
+- ESPN is the only team data source.

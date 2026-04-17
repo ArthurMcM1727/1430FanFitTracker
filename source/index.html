@@ -1,71 +1,111 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
     <meta charset="UTF-8">
-    <title>Fan Fit</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FanFit Tracker</title>
     <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
-    <h1>Fan Fit</h1>
-    <div id="sport-selector" aria-label="Sport selector">
-        <button class="sport-card" type="button" onclick="loadSport('hockey')">Hockey</button>
-        <button class="sport-card" type="button" onclick="loadSport('football')">Football</button>
-        <button class="sport-card" type="button" onclick="loadSport('baseball')">Baseball</button>
-        <button class="sport-card" type="button" onclick="loadSport('basketball')">Basketball</button>
-    </div>
-
-    <div id="team-selector" class="selector-block">
-        <label for="team-dropdown">Select Team</label>
-        <select id="team-dropdown" disabled>
-            <option value="">Select a sport first</option>
-        </select>
-
-        <label for="favorite-checkbox" class="favorite-toggle">
-            <input type="checkbox" id="favorite-checkbox" disabled>
-            Mark selected team as favorite
-        </label>
-    </div>
-
-    <div id="games-output" aria-live="polite">
-        <p class="status-message">Choose a sport and team to see current games.</p>
-    </div>
-
-    <!--We can name this something different, but my thoughts are we can let the user pick their exercises and their reps:points ratio for each.-->
-    <section id="exercise-rules-section" aria-live="polite">
-        <h2>Exercise Rules</h2>
-        <p class="status-message">Set reps per point for each exercise.</p>
-        <div id="exercise-rules"></div>
-        <!--Here we can dynamically create new rules, using the button below button to add new exercises, or pull from our json if that's how we wanna do it.-->
-        <button id="add-rule-button" type="button">Add exercise</button>
-        <button id="generate-workout button" type="button">Generate your dynamic workout!</button>
-    </section>
-
-    <section id="workout-output" aria-live="polite">
-        <!--Here we can replace this in the js. This is just a placeholder until the user selects somm.-->
-        <p class="status-message">Select a team to generate a score-based workout.</p>
-    </section>
-
-    <section id="workout-section" aria-live="polite">
-        <h2>Custom Workouts</h2>
-        <div id="workout-controls">
-            <div class="input-row">
-                <label for="workout-name">Exercise</label>
-                <input id="workout-name" type="text" placeholder="Exercise name">
-
-                <label for="workout-reps">Reps</label>
-                <input id="workout-reps" type="number" min="1" value="10">
-
-                <button id="add-workout-button" type="button">Add workout</button>
-            </div>
-            <p id="workout-help" class="status-message">Workouts are saved per selected team and sport.</p>
-            <p id="workout-summary" class="status-message"></p>
+    <header class="hero">
+        <div class="hero-copy">
+            <p class="eyebrow">FanFit Tracker</p>
+            <h1>Turn game moments into workouts.</h1>
+            <p class="lede">Pick a sport and team, then build workouts around custom game events or the live score.</p>
         </div>
-        <div id="workout-list"></div>
-    </section>
+    </header>
 
-    <section id="favorites-section" aria-live="polite"></section>
+    <main class="app-shell">
+        <section class="panel">
+            <div class="panel-heading">
+                <h2>1. Choose a sport</h2>
+                <p>Select a league to load live team data from ESPN.</p>
+            </div>
+            <div id="sport-selector" class="sport-grid" aria-label="Sport selector"></div>
+        </section>
+
+        <section class="panel">
+            <div class="panel-heading">
+                <h2>2. Choose a team</h2>
+                <p>Workouts are stored locally per sport and team.</p>
+            </div>
+            <div class="field-group">
+                <label for="team-dropdown">Team</label>
+                <select id="team-dropdown" disabled>
+                    <option value="">Select a sport first</option>
+                </select>
+                <p id="team-status" class="helper-text">Choose a sport to load teams.</p>
+            </div>
+        </section>
+
+        <section class="panel" id="games-panel" aria-live="polite">
+            <div class="panel-heading">
+                <h2>Live game snapshot</h2>
+                <p>Use the current scoreboard as a workout multiplier if you want live score tracking.</p>
+            </div>
+            <div id="games-output">
+                <p class="status-message">Choose a team to see live games and scores.</p>
+            </div>
+        </section>
+
+        <section class="panel" id="workout-section" aria-live="polite">
+            <div class="panel-heading">
+                <h2>Custom workouts</h2>
+                <p>Create workouts from custom game events like fouls, power plays, hat tricks, or the live score.</p>
+            </div>
+
+            <form id="workout-form" class="workout-form">
+                <div class="form-grid">
+                    <div class="field-group">
+                        <label for="workout-multiplier-type">Multiplier source</label>
+                        <select id="workout-multiplier-type">
+                            <option value="event-count">Custom game event count</option>
+                            <option value="live-score">Live score</option>
+                        </select>
+                    </div>
+
+                    <div class="field-group">
+                        <label for="workout-event-label">Game event</label>
+                        <input id="workout-event-label" type="text" placeholder="Fouls, power plays, hat tricks"
+                            autocomplete="off">
+                    </div>
+
+                    <div class="field-group">
+                        <label for="workout-name">Workout name</label>
+                        <input id="workout-name" type="text" placeholder="Burpees, push-ups, squats" autocomplete="off">
+                    </div>
+
+                    <div class="field-group">
+                        <label for="workout-reps">Base reps</label>
+                        <input id="workout-reps" type="number" min="1" value="10">
+                    </div>
+
+                    <div class="field-group" id="event-count-group">
+                        <label for="workout-event-count">Event count</label>
+                        <input id="workout-event-count" type="number" min="1" value="1">
+                    </div>
+
+                    <div class="field-group" id="live-team-group">
+                        <label for="workout-live-team">Track score for</label>
+                        <select id="workout-live-team">
+                            <option value="selected-team">Selected team</option>
+                            <option value="opponent-team">Opponent team</option>
+                        </select>
+                    </div>
+                </div>
+
+                <p id="workout-help" class="helper-text">Choose a sport and team to start building workouts.</p>
+                <div class="builder-actions">
+                    <button id="add-workout-button" type="submit">Add workout</button>
+                </div>
+            </form>
+
+            <div class="summary-bar" id="workout-summary"></div>
+            <div id="workout-list" class="workout-list"></div>
+        </section>
+    </main>
 
     <script src="script.js"></script>
 </body>
