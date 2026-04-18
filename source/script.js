@@ -105,8 +105,31 @@ function normalizeWorkout(workout) {
         normalized.eventLabel = normalized.multiplierType === 'live-score' ? 'Live score' : 'Custom event';
     }
 
-    if (normalized.completed && normalized.completedReps === null) {
-        normalized.completedReps = calculateWorkoutTotal(normalized);
+    // Add completedEvents for partial completion
+    if (normalized.multiplierType === 'event-count') {
+        if (Array.isArray(workout.completedEvents)) {
+            if (workout.completedEvents.length === normalized.eventCount) {
+                normalized.completedEvents = workout.completedEvents.slice();
+            } else {
+                // Resize array
+                normalized.completedEvents = new Array(normalized.eventCount).fill(false);
+                workout.completedEvents.forEach((val, idx) => {
+                    if (idx < normalized.eventCount) {
+                        normalized.completedEvents[idx] = val;
+                    }
+                });
+            }
+        } else {
+            // Initialize based on legacy completed
+            normalized.completedEvents = new Array(normalized.eventCount).fill(normalized.completed);
+        }
+        // Update completed based on completedEvents
+        normalized.completed = normalized.completedEvents.every(Boolean);
+        if (normalized.completed && normalized.completedReps === null) {
+            normalized.completedReps = calculateWorkoutTotal(normalized);
+        }
+    } else {
+        normalized.completedEvents = null; // Not applicable for live-score
     }
 
     return normalized;
@@ -518,6 +541,30 @@ function toggleWorkoutCompleted(index) {
     renderWorkoutSection();
 }
 
+function toggleAllEventsCompleted(workoutIndex) {
+    if (!state.selectedSport || !state.selectedTeam) {
+        return;
+    }
+
+    const workouts = getStoredWorkouts(state.selectedSport, state.selectedTeam);
+    if (workoutIndex < 0 || workoutIndex >= workouts.length) {
+        return;
+    }
+
+    const workout = workouts[workoutIndex];
+    if (workout.multiplierType !== 'event-count' || !workout.completedEvents) {
+        return;
+    }
+
+    const allCompleted = workout.completedEvents.every(Boolean);
+    workout.completedEvents.fill(!allCompleted);
+    workout.completed = !allCompleted;
+    workout.completedReps = workout.completed ? calculateWorkoutTotal(workout) : null;
+
+    saveStoredWorkouts(state.selectedSport, state.selectedTeam, workouts);
+    renderWorkoutSection();
+}
+
 function removeWorkout(index) {
     if (!state.selectedSport || !state.selectedTeam) {
         return;
@@ -549,7 +596,22 @@ function buildWorkoutCard(workout, index) {
 
     const statusPill = document.createElement('span');
     statusPill.className = 'status-pill';
-    statusPill.textContent = workout.completed ? 'Completed' : 'Active';
+    if (workout.multiplierType === 'event-count') {
+        const completedCount = workout.completedEvents.filter(Boolean).length;
+        if (completedCount === 0) {
+            statusPill.textContent = 'Active';
+            statusPill.classList.add('active');
+        } else if (completedCount === workout.eventCount) {
+            statusPill.textContent = 'Completed';
+            statusPill.classList.add('completed');
+        } else {
+            statusPill.textContent = `Partial (${completedCount}/${workout.eventCount})`;
+            statusPill.classList.add('partial');
+        }
+    } else {
+        statusPill.textContent = workout.completed ? 'Completed' : 'Active';
+        statusPill.classList.add(workout.completed ? 'completed' : 'active');
+    }
 
     titleRow.appendChild(titleInput);
     titleRow.appendChild(statusPill);
@@ -619,18 +681,63 @@ function buildWorkoutCard(workout, index) {
     const multiplierLabel = workout.multiplierType === 'live-score'
         ? `${describeLiveSource(workout.liveTeamSource)} score (${multiplierValue})`
         : `${workout.eventCount} event${workout.eventCount === 1 ? '' : 's'}`;
-    totalLine.textContent = workout.completed
-        ? `Completed: ${workout.completedReps ?? currentTotal} reps | ${getWorkoutLabel(workout)} · ${multiplierLabel}`
-        : `Current total: ${currentTotal} reps | ${getWorkoutLabel(workout)} · ${multiplierLabel}`;
+    
+    let completedReps = workout.completedReps;
+    if (workout.multiplierType === 'event-count' && workout.completedEvents) {
+        completedReps = workout.baseReps * workout.completedEvents.filter(Boolean).length;
+    }
+    
+    if (workout.multiplierType === 'event-count') {
+        const completedCount = workout.completedEvents.filter(Boolean).length;
+        if (completedCount === workout.eventCount) {
+            totalLine.textContent = `Completed: ${completedReps} reps | ${getWorkoutLabel(workout)} · ${multiplierLabel}`;
+        } else if (completedCount > 0) {
+            totalLine.textContent = `Partial: ${completedReps}/${currentTotal} reps | ${getWorkoutLabel(workout)} · ${multiplierLabel}`;
+        } else {
+            totalLine.textContent = `Current total: ${currentTotal} reps | ${getWorkoutLabel(workout)} · ${multiplierLabel}`;
+        }
+    } else {
+        totalLine.textContent = workout.completed
+            ? `Completed: ${workout.completedReps ?? currentTotal} reps | ${getWorkoutLabel(workout)} · ${multiplierLabel}`
+            : `Current total: ${currentTotal} reps | ${getWorkoutLabel(workout)} · ${multiplierLabel}`;
+    }
 
     const actions = document.createElement('div');
     actions.className = 'workout-actions';
 
+    // Partial completion UI for event-count workouts
+    let partialSection = null;
+    if (workout.multiplierType === 'event-count') {
+        partialSection = document.createElement('div');
+        partialSection.className = 'partial-completion';
+        const partialTitle = document.createElement('p');
+        partialTitle.textContent = 'Mark events completed:';
+        partialSection.appendChild(partialTitle);
+        
+        workout.completedEvents.forEach((isCompleted, eventIndex) => {
+            const label = document.createElement('label');
+            label.className = 'event-checkbox';
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.checked = isCompleted;
+            checkbox.addEventListener('change', () => toggleEventCompleted(index, eventIndex));
+            label.appendChild(checkbox);
+            label.appendChild(document.createTextNode(` Event ${eventIndex + 1}`));
+            partialSection.appendChild(label);
+        });
+    }
+
     const completeButton = document.createElement('button');
     completeButton.type = 'button';
     completeButton.className = 'complete-workout-button';
-    completeButton.textContent = workout.completed ? 'Undo complete' : 'Mark complete';
-    completeButton.addEventListener('click', () => toggleWorkoutCompleted(index));
+    if (workout.multiplierType === 'event-count') {
+        const allCompleted = workout.completedEvents.every(Boolean);
+        completeButton.textContent = allCompleted ? 'Undo all complete' : 'Mark all complete';
+        completeButton.addEventListener('click', () => toggleAllEventsCompleted(index));
+    } else {
+        completeButton.textContent = workout.completed ? 'Undo complete' : 'Mark complete';
+        completeButton.addEventListener('click', () => toggleWorkoutCompleted(index));
+    }
 
     const removeButton = document.createElement('button');
     removeButton.type = 'button';
@@ -656,6 +763,9 @@ function buildWorkoutCard(workout, index) {
     card.appendChild(titleRow);
     card.appendChild(meta);
     card.appendChild(totalLine);
+    if (partialSection) {
+        card.appendChild(partialSection);
+    }
     card.appendChild(actions);
 
     return card;
@@ -679,7 +789,13 @@ function renderWorkoutSummary(workouts) {
 
     const dueWorkouts = workouts.filter((workout) => !workout.completed);
     const completedWorkouts = workouts.filter((workout) => workout.completed);
-    const dueReps = dueWorkouts.reduce((total, workout) => total + calculateWorkoutTotal(workout), 0);
+    const dueReps = dueWorkouts.reduce((total, workout) => {
+        const fullTotal = calculateWorkoutTotal(workout);
+        const doneReps = workout.multiplierType === 'event-count' && workout.completedEvents 
+            ? workout.baseReps * workout.completedEvents.filter(Boolean).length 
+            : 0;
+        return total + (fullTotal - doneReps);
+    }, 0);
     const completedReps = completedWorkouts.reduce((total, workout) => total + (workout.completedReps ?? calculateWorkoutTotal(workout)), 0);
 
     summary.textContent = `${dueWorkouts.length} due (${dueReps} reps) · ${completedWorkouts.length} completed (${completedReps} reps)`;
