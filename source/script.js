@@ -82,100 +82,6 @@ function saveStoredWorkouts(sport, team, workouts) {
 function normalizeWorkout(workout) {
     if (!workout || typeof workout !== 'object') {
         return null;
-<<<<<<< HEAD
-    }
-
-    const multiplierType = workout.multiplierType === 'live-score' ? 'live-score' : 'event-count';
-    const normalized = {
-        id: workout.id || createId(),
-        name: String(workout.name || '').trim(),
-        baseReps: parsePositiveInteger(workout.baseReps, 1),
-        multiplierType,
-        eventLabel: String(workout.eventLabel || '').trim(),
-        eventCount: parsePositiveInteger(workout.eventCount, 1),
-        liveTeamSource: workout.liveTeamSource === 'opponent-team' ? 'opponent-team' : 'selected-team',
-        completed: Boolean(workout.completed),
-        completedReps: Number.isFinite(Number(workout.completedReps)) ? Number(workout.completedReps) : null
-    };
-
-    if (!normalized.name) {
-        return null;
-    }
-
-    if (!normalized.eventLabel) {
-        normalized.eventLabel = normalized.multiplierType === 'live-score' ? 'Live score' : 'Custom event';
-    }
-
-    // Add completedEvents for partial completion
-    if (normalized.multiplierType === 'event-count') {
-        if (Array.isArray(workout.completedEvents)) {
-            if (workout.completedEvents.length === normalized.eventCount) {
-                normalized.completedEvents = workout.completedEvents.slice();
-            } else {
-                // Resize array
-                normalized.completedEvents = new Array(normalized.eventCount).fill(false);
-                workout.completedEvents.forEach((val, idx) => {
-                    if (idx < normalized.eventCount) {
-                        normalized.completedEvents[idx] = val;
-                    }
-                });
-            }
-        } else {
-            // Initialize based on legacy completed
-            normalized.completedEvents = new Array(normalized.eventCount).fill(normalized.completed);
-        }
-        // Update completed based on completedEvents
-        normalized.completed = normalized.completedEvents.every(Boolean);
-        if (normalized.completed && normalized.completedReps === null) {
-            normalized.completedReps = calculateWorkoutTotal(normalized);
-        }
-    } else if (normalized.multiplierType === 'live-score') {
-        const currentScore = Math.max(0, getLiveScoreForSource(normalized.liveTeamSource));
-        if (Array.isArray(workout.completedEvents)) {
-            if (workout.completedEvents.length === currentScore) {
-                normalized.completedEvents = workout.completedEvents.slice();
-            } else if (workout.completedEvents.length < currentScore) {
-                // Score increased, add false entries
-                normalized.completedEvents = workout.completedEvents.slice();
-                while (normalized.completedEvents.length < currentScore) {
-                    normalized.completedEvents.push(false);
-                }
-            } else {
-                // Score decreased, truncate but keep completed ones
-                normalized.completedEvents = workout.completedEvents.slice(0, currentScore);
-            }
-        } else {
-            // Initialize based on legacy completed
-            normalized.completedEvents = new Array(currentScore).fill(normalized.completed);
-        }
-        // Update completed based on completedEvents
-        normalized.completed = normalized.completedEvents.every(Boolean);
-        if (normalized.completed && normalized.completedReps === null) {
-            normalized.completedReps = calculateWorkoutTotal(normalized);
-        }
-    } else {
-        normalized.completedEvents = null;
-    }
-
-    return normalized;
-}
-
-function setMessage(elementId, message) {
-    const element = document.getElementById(elementId);
-    if (!element) {
-        return;
-    }
-
-    element.innerHTML = `<p class="status-message">${message}</p>`;
-}
-
-function renderSportButtons() {
-    const container = document.getElementById('sport-selector');
-    if (!container) {
-        return;
-    }
-
-=======
     }
 
     const multiplierType = workout.multiplierType === 'live-score' ? 'live-score' : 'event-count';
@@ -221,7 +127,6 @@ function renderSportButtons() {
         return;
     }
 
->>>>>>> b19d3e5 (ADD: Overhaul. Completed custom workout input implementation)
     container.innerHTML = '';
 
     Object.keys(SPORT_LEAGUE_MAP).forEach((sport) => {
