@@ -105,8 +105,55 @@ function normalizeWorkout(workout) {
         normalized.eventLabel = normalized.multiplierType === 'live-score' ? 'Live score' : 'Custom event';
     }
 
-    if (normalized.completed && normalized.completedReps === null) {
-        normalized.completedReps = calculateWorkoutTotal(normalized);
+    // Add completedEvents for partial completion
+    if (normalized.multiplierType === 'event-count') {
+        if (Array.isArray(workout.completedEvents)) {
+            if (workout.completedEvents.length === normalized.eventCount) {
+                normalized.completedEvents = workout.completedEvents.slice();
+            } else {
+                // Resize array
+                normalized.completedEvents = new Array(normalized.eventCount).fill(false);
+                workout.completedEvents.forEach((val, idx) => {
+                    if (idx < normalized.eventCount) {
+                        normalized.completedEvents[idx] = val;
+                    }
+                });
+            }
+        } else {
+            // Initialize based on legacy completed
+            normalized.completedEvents = new Array(normalized.eventCount).fill(normalized.completed);
+        }
+        // Update completed based on completedEvents
+        normalized.completed = normalized.completedEvents.every(Boolean);
+        if (normalized.completed && normalized.completedReps === null) {
+            normalized.completedReps = calculateWorkoutTotal(normalized);
+        }
+    } else if (normalized.multiplierType === 'live-score') {
+        const currentScore = Math.max(0, getLiveScoreForSource(normalized.liveTeamSource));
+        if (Array.isArray(workout.completedEvents)) {
+            if (workout.completedEvents.length === currentScore) {
+                normalized.completedEvents = workout.completedEvents.slice();
+            } else if (workout.completedEvents.length < currentScore) {
+                // Score increased, add false entries
+                normalized.completedEvents = workout.completedEvents.slice();
+                while (normalized.completedEvents.length < currentScore) {
+                    normalized.completedEvents.push(false);
+                }
+            } else {
+                // Score decreased, truncate but keep completed ones
+                normalized.completedEvents = workout.completedEvents.slice(0, currentScore);
+            }
+        } else {
+            // Initialize based on legacy completed
+            normalized.completedEvents = new Array(currentScore).fill(normalized.completed);
+        }
+        // Update completed based on completedEvents
+        normalized.completed = normalized.completedEvents.every(Boolean);
+        if (normalized.completed && normalized.completedReps === null) {
+            normalized.completedReps = calculateWorkoutTotal(normalized);
+        }
+    } else {
+        normalized.completedEvents = null;
     }
 
     return normalized;
@@ -518,7 +565,6 @@ function toggleWorkoutCompleted(index) {
     renderWorkoutSection();
 }
 
-<<<<<<< HEAD
 function toggleAllEventsCompleted(workoutIndex) {
     if (!state.selectedSport || !state.selectedTeam) {
         return;
@@ -574,8 +620,6 @@ function toggleEventCompleted(workoutIndex, eventIndex) {
     renderWorkoutSection();
 }
 
-=======
->>>>>>> b19d3e5 (ADD: Overhaul. Completed custom workout input implementation)
 function removeWorkout(index) {
     if (!state.selectedSport || !state.selectedTeam) {
         return;
@@ -607,7 +651,6 @@ function buildWorkoutCard(workout, index) {
 
     const statusPill = document.createElement('span');
     statusPill.className = 'status-pill';
-<<<<<<< HEAD
     if (workout.multiplierType === 'event-count' || workout.multiplierType === 'live-score') {
         const completedCount = workout.completedEvents.filter(Boolean).length;
         const totalCount = workout.multiplierType === 'event-count' ? workout.eventCount : workout.completedEvents.length;
@@ -625,9 +668,6 @@ function buildWorkoutCard(workout, index) {
         statusPill.textContent = workout.completed ? 'Completed' : 'Active';
         statusPill.classList.add(workout.completed ? 'completed' : 'active');
     }
-=======
-    statusPill.textContent = workout.completed ? 'Completed' : 'Active';
->>>>>>> b19d3e5 (ADD: Overhaul. Completed custom workout input implementation)
 
     titleRow.appendChild(titleInput);
     titleRow.appendChild(statusPill);
@@ -697,7 +737,6 @@ function buildWorkoutCard(workout, index) {
     const multiplierLabel = workout.multiplierType === 'live-score'
         ? `${describeLiveSource(workout.liveTeamSource)} score (${multiplierValue})`
         : `${workout.eventCount} event${workout.eventCount === 1 ? '' : 's'}`;
-<<<<<<< HEAD
     
     let completedReps = workout.completedReps;
     if ((workout.multiplierType === 'event-count' || workout.multiplierType === 'live-score') && workout.completedEvents) {
@@ -719,16 +758,10 @@ function buildWorkoutCard(workout, index) {
             ? `Completed: ${workout.completedReps ?? currentTotal} reps | ${getWorkoutLabel(workout)} · ${multiplierLabel}`
             : `Current total: ${currentTotal} reps | ${getWorkoutLabel(workout)} · ${multiplierLabel}`;
     }
-=======
-    totalLine.textContent = workout.completed
-        ? `Completed: ${workout.completedReps ?? currentTotal} reps | ${getWorkoutLabel(workout)} · ${multiplierLabel}`
-        : `Current total: ${currentTotal} reps | ${getWorkoutLabel(workout)} · ${multiplierLabel}`;
->>>>>>> b19d3e5 (ADD: Overhaul. Completed custom workout input implementation)
 
     const actions = document.createElement('div');
     actions.className = 'workout-actions';
 
-<<<<<<< HEAD
     // Partial completion UI for event-count and live-score workouts
     let partialSection = null;
     if (workout.multiplierType === 'event-count' || workout.multiplierType === 'live-score') {
@@ -763,13 +796,6 @@ function buildWorkoutCard(workout, index) {
         completeButton.textContent = workout.completed ? 'Undo complete' : 'Mark complete';
         completeButton.addEventListener('click', () => toggleWorkoutCompleted(index));
     }
-=======
-    const completeButton = document.createElement('button');
-    completeButton.type = 'button';
-    completeButton.className = 'complete-workout-button';
-    completeButton.textContent = workout.completed ? 'Undo complete' : 'Mark complete';
-    completeButton.addEventListener('click', () => toggleWorkoutCompleted(index));
->>>>>>> b19d3e5 (ADD: Overhaul. Completed custom workout input implementation)
 
     const removeButton = document.createElement('button');
     removeButton.type = 'button';
@@ -792,7 +818,6 @@ function buildWorkoutCard(workout, index) {
         liveTeamGroup.classList.add('is-hidden');
     }
 
-<<<<<<< HEAD
     const progressDisplay = renderWorkoutProgress(workout);
 
     card.appendChild(titleRow);
@@ -802,11 +827,6 @@ function buildWorkoutCard(workout, index) {
     if (partialSection) {
         card.appendChild(partialSection);
     }
-=======
-    card.appendChild(titleRow);
-    card.appendChild(meta);
-    card.appendChild(totalLine);
->>>>>>> b19d3e5 (ADD: Overhaul. Completed custom workout input implementation)
     card.appendChild(actions);
 
     return card;
@@ -825,7 +845,6 @@ function renderWorkoutSummary(workouts) {
 
     if (!workouts.length) {
         summary.textContent = 'No workouts saved yet. Add one above.';
-<<<<<<< HEAD
         return;
     }
 
@@ -958,72 +977,6 @@ async function initTeamSelection(teamName) {
     renderWorkoutSection();
 }
 
-=======
-        return;
-    }
-
-    const dueWorkouts = workouts.filter((workout) => !workout.completed);
-    const completedWorkouts = workouts.filter((workout) => workout.completed);
-    const dueReps = dueWorkouts.reduce((total, workout) => total + calculateWorkoutTotal(workout), 0);
-    const completedReps = completedWorkouts.reduce((total, workout) => total + (workout.completedReps ?? calculateWorkoutTotal(workout)), 0);
-
-    summary.textContent = `${dueWorkouts.length} due (${dueReps} reps) · ${completedWorkouts.length} completed (${completedReps} reps)`;
-}
-
-function renderWorkoutSection() {
-    const workoutList = document.getElementById('workout-list');
-    const workoutHelp = document.getElementById('workout-help');
-
-    if (!workoutList || !workoutHelp) {
-        return;
-    }
-
-    populateWorkoutFormDefaults();
-
-    if (!state.selectedSport || !state.selectedTeam) {
-        workoutList.innerHTML = '<p class="status-message">Choose a sport and team to save workouts.</p>';
-        workoutHelp.textContent = 'Pick a sport and team before adding workouts.';
-        renderWorkoutSummary([]);
-        return;
-    }
-
-    const workouts = getStoredWorkouts(state.selectedSport, state.selectedTeam);
-    workoutHelp.textContent = `Workouts are saved locally for ${state.selectedTeam}. Custom events use your own count, and live-score workouts refresh from ESPN.`;
-    renderWorkoutSummary(workouts);
-
-    workoutList.innerHTML = '';
-    if (!workouts.length) {
-        workoutList.innerHTML = '<p class="status-message">No saved workouts yet. Add one above.</p>';
-        return;
-    }
-
-    workouts.forEach((workout, index) => {
-        const card = buildWorkoutCard(workout, index);
-        workoutList.appendChild(card);
-    });
-}
-
-async function initTeamSelection(teamName) {
-    state.selectedTeam = teamName;
-    populateLiveScoreOptions();
-    updateBuilderVisibility();
-
-    if (!teamName) {
-        state.games = [];
-        clearRefreshTimer();
-        setMessage('team-status', 'Choose a team to load live games.');
-        setMessage('games-output', 'Choose a team to see live games and scores.');
-        renderWorkoutSection();
-        return;
-    }
-
-    setMessage('team-status', `Showing live data for ${teamName}.`);
-    await fetchTeamGames(teamName);
-    startGameRefresh();
-    renderWorkoutSection();
-}
-
->>>>>>> b19d3e5 (ADD: Overhaul. Completed custom workout input implementation)
 function init() {
     renderSportButtons();
     populateLiveScoreOptions();
