@@ -82,8 +82,8 @@ button:hover {
 }
 
 .sport-grid {
-    display: flex;
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
     gap: 12px;
     margin-top: 15px;
 }
