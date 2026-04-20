@@ -565,6 +565,36 @@ function toggleAllEventsCompleted(workoutIndex) {
     renderWorkoutSection();
 }
 
+//Partial completion toggle for individual events in event-count workouts
+function toggleEventCompleted(workoutIndex, eventIndex) {
+    if (!state.selectedSport || !state.selectedTeam) {
+        return;
+    }
+
+    const workouts = getStoredWorkouts(state.selectedSport, state.selectedTeam);
+    if (workoutIndex < 0 || workoutIndex >= workouts.length) {
+        return;
+    }
+
+    const workout = normalizeWorkout(workouts[workoutIndex]);
+    if (workout.multiplierType !== 'event-count' || !Array.isArray(workout.completedEvents)) {
+        return;
+    }
+
+    if (eventIndex < 0 || eventIndex >= workout.completedEvents.length) {
+        return;
+    }
+
+    workout.completedEvents[eventIndex] = !workout.completedEvents[eventIndex];
+    const completedCount = workout.completedEvents.filter(Boolean).length;
+    workout.completed = completedCount >= workout.eventCount;
+    workout.completedReps = completedCount * workout.baseReps;
+
+    workouts[workoutIndex] = workout;
+    saveStoredWorkouts(state.selectedSport, state.selectedTeam, workouts);
+    renderWorkoutSection();
+}
+
 function removeWorkout(index) {
     if (!state.selectedSport || !state.selectedTeam) {
         return;
@@ -686,7 +716,7 @@ function buildWorkoutCard(workout, index) {
     if (workout.multiplierType === 'event-count' && workout.completedEvents) {
         completedReps = workout.baseReps * workout.completedEvents.filter(Boolean).length;
     }
-    
+
     if (workout.multiplierType === 'event-count') {
         const completedCount = workout.completedEvents.filter(Boolean).length;
         if (completedCount === workout.eventCount) {
@@ -760,9 +790,12 @@ function buildWorkoutCard(workout, index) {
         liveTeamGroup.classList.add('is-hidden');
     }
 
+    const progressDisplay = renderWorkoutProgress(workout);
+
     card.appendChild(titleRow);
     card.appendChild(meta);
     card.appendChild(totalLine);
+    card.appendChild(progressDisplay);
     if (partialSection) {
         card.appendChild(partialSection);
     }
@@ -832,6 +865,68 @@ function renderWorkoutSection() {
         const card = buildWorkoutCard(workout, index);
         workoutList.appendChild(card);
     });
+}
+
+// Calculates progress for a workout, including partial completion for event-count workouts
+function calculateWorkoutProgress(workout) {
+    if (workout.multiplierType === 'event-count' && workout.completedEvents) {
+        const completedCount = workout.completedEvents.filter(Boolean).length;
+        const totalCount = workout.eventCount;
+        const completedReps = workout.baseReps * completedCount;
+        const totalReps = calculateWorkoutTotal(workout);
+        const completionPercent = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
+        
+        return {
+            completedSets: completedCount,
+            totalSets: totalCount,
+            completedReps,
+            totalReps,
+            completionPercent
+        };
+    } else if (workout.multiplierType === 'live-score') {
+        const totalReps = calculateWorkoutTotal(workout);
+        const completedReps = workout.completed ? totalReps : 0;
+        const completionPercent = workout.completed ? 100 : 0;
+        
+        return {
+            completedSets: workout.completed ? 1 : 0,
+            totalSets: 1,
+            completedReps,
+            totalReps,
+            completionPercent
+        };
+    }
+    
+    return {
+        completedSets: 0,
+        totalSets: 1,
+        completedReps: 0,
+        totalReps: calculateWorkoutTotal(workout),
+        completionPercent: 0
+    };
+}
+
+// Renders a progress bar and stats line for a workout, showing partial completion for event-count workouts
+function renderWorkoutProgress(workout) {
+    const progress = calculateWorkoutProgress(workout);
+    const progressDiv = document.createElement('div');
+    progressDiv.className = 'workout-progress';
+    
+    const statsLine = document.createElement('p');
+    statsLine.className = 'progress-stats';
+    statsLine.textContent = `${progress.completedReps}/${progress.totalReps} reps · ${progress.completedSets}/${progress.totalSets} sets · ${progress.completionPercent}% complete`;
+    
+    const progressBar = document.createElement('div');
+    progressBar.className = 'progress-bar-container';
+    const progressFill = document.createElement('div');
+    progressFill.className = 'progress-bar-fill';
+    progressFill.style.width = `${progress.completionPercent}%`;
+    progressBar.appendChild(progressFill);
+    
+    progressDiv.appendChild(statsLine);
+    progressDiv.appendChild(progressBar);
+    
+    return progressDiv;
 }
 
 async function initTeamSelection(teamName) {
